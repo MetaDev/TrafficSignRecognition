@@ -6,14 +6,11 @@ Created on Mon Oct 12 23:09:33 2015
 """
 
 import numpy as np
-from matplotlib import pyplot as plot
-from mpl_toolkits.mplot3d import Axes3D
 from scipy import ndimage
 from scipy import signal
 from scipy import stats
 from glob import glob
 from pathlib import Path
-from sklearn import cross_validation
 
 def extract(filename):
     image = ndimage.imread(filename)
@@ -57,7 +54,7 @@ def calculateAngleFeatures(image, angleDetail = 4):
                 features[angleDetail] += 1
     return features / (width * height)
     
-def calculateColorFeatures(image):
+def calculateNormalizedColorFeatures(image):
     pixels = image.size
     features = np.zeros(3)
     for i in range(len(image)):
@@ -66,6 +63,16 @@ def calculateColorFeatures(image):
             features[0] += image[i,j,0] / (length + 1)
             features[1] += image[i,j,1] / (length + 1)
             features[2] += image[i,j,2] / (length + 1)
+    return features / pixels
+    
+def calculateColorFeatures(image):
+    pixels = image.size
+    features = np.zeros(3)
+    for i in range(len(image)):
+        for j in range(len(image[0])):
+            features[0] += image[i,j,0]
+            features[1] += image[i,j,1]
+            features[2] += image[i,j,2]
     return features / pixels
     
 def calculateAngleMoments(image):
@@ -87,7 +94,7 @@ def calculateAngleMoments(image):
     kurtosis = np.arctan2(kurtosisVector[1], kurtosisVector[0])
     return (mean, sd, skew, kurtosis)
 
-def normalize(image):
+def normalizeImage(image):
     normalized = image / 1.0
     for i in range(len(image)):
         for j in range(len(image[0])):
@@ -95,34 +102,8 @@ def normalize(image):
             normalized[i,j,:] = [float(normalized[i,j,0]), float(normalized[i,j,1]), float(normalized[i,j,2])] / length
     return normalized
 
-testimage = ndimage.imread("train/blue_circles/D1a/00062_04919.png")
-wut = ndimage.gaussian_filter(testimage, 2)
+def loadTrainingImages():
+    imagePaths = glob("train/*/*/*.png")
+    return list(map(extract, imagePaths))
+    
 
-#plot.imshow(wut)
-
-imagePaths = glob("train/*/*/*.png")
-images = list(map(extract, imagePaths))
-xs = list(map(lambda x: x[0], images))
-ys = list(map(lambda x: x[1], images))
-
-#xTrain, xTest, yTrain, yTest = cross_validation.train_test_split(xs, ys, test_size=0.4)
-
-classA = list(filter(lambda i: i[1] == "stop", images))
-classB = list(filter(lambda i: i[1] == "diamonds", images))
-classC = list(filter(lambda i: i[1] == "reversed_triangles", images))
-
-fig = plot.figure()
-axes = fig.add_subplot(111, projection = '3d')
-
-def plotFeatures(data, amount, color, marker):  
-    counter = 0
-    for image in data[0:amount]:
-        print(counter)
-        counter+=1
-        angleFeatures = calculateAngleFeatures(image[0])
-        colorFeatures = calculateColorFeatures(image[0])
-        axes.scatter(angleFeatures[2], angleFeatures[3], angleFeatures[4], c=color,marker=marker)
-
-#plotFeatures(classA, 10, 'r', 'o')
-plotFeatures(classB, 50, 'b', '^')
-plotFeatures(classC, 50, 'g', 'x')
