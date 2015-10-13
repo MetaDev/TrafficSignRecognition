@@ -10,6 +10,7 @@ from matplotlib import pyplot as plot
 from mpl_toolkits.mplot3d import Axes3D
 from scipy import ndimage
 from scipy import signal
+from scipy import stats
 from glob import glob
 from pathlib import Path
 from sklearn import cross_validation
@@ -67,6 +68,25 @@ def calculateColorFeatures(image):
             features[2] += image[i,j,2] / (length + 1)
     return features / pixels
     
+def calculateAngleMoments(image):
+    angles, magnitudes = calculatePixelAngleAndMagnitude(image)
+    vectors = np.vectorize(lambda a, m: (m * np.cos(a), m * np.sin(a)))(angles, magnitudes)
+    vectors = np.zeros([len(image), len(image[0]), 2])
+    for i in range(len(image)):
+        for j in range(len(image[0])):
+            vectors[i,j,0] = magnitudes[i,j] * np.cos(angles[i,j])
+            vectors[i,j,1] = magnitudes[i,j] * np.sin(angles[i,j])
+    vectors = vectors.reshape([-1,2])
+    meanVector = np.mean(vectors,0)
+    sdVector = np.std(vectors,0)
+    skewVector = stats.skew(vectors,0)
+    kurtosisVector = stats.kurtosis(vectors,0)
+    mean = np.arctan2(meanVector[1], meanVector[0])
+    sd = np.arctan2(sdVector[1], sdVector[0])
+    skew = np.arctan2(skewVector[1], skewVector[0])
+    kurtosis = np.arctan2(kurtosisVector[1], kurtosisVector[0])
+    return (mean, sd, skew, kurtosis)
+
 def normalize(image):
     normalized = image / 1.0
     for i in range(len(image)):
@@ -101,7 +121,7 @@ def plotFeatures(data, amount, color, marker):
         counter+=1
         angleFeatures = calculateAngleFeatures(image[0])
         colorFeatures = calculateColorFeatures(image[0])
-        axes.scatter(colorFeatures[0], angleFeatures[2], colorFeatures[2], c=color,marker=marker)
+        axes.scatter(angleFeatures[2], angleFeatures[3], angleFeatures[4], c=color,marker=marker)
 
 #plotFeatures(classA, 10, 'r', 'o')
 plotFeatures(classB, 50, 'b', '^')
