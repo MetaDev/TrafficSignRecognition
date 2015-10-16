@@ -13,9 +13,11 @@ clustering when used as features of the data set.
 TODO: name some more stuff
 """
 
-from test import *
+from scipy import ndimage
+import image_operations as op
+import data_loading as loader
+import feature_extraction as extractor
 from matplotlib import pyplot as plot
-from mpl_toolkits.mplot3d import Axes3D
 
 darkImage = ndimage.imread("train/diamonds/B9/00585_09701.png")
 normalImage = ndimage.imread("train/diamonds/B9/00042_00233.png")
@@ -27,11 +29,11 @@ standardNormal = comparison.add_subplot(2,2,2)
 standardNormal.imshow(normalImage)
 
 normalDark = comparison.add_subplot(2,2,3)
-normalDark.imshow(normalizeImage(darkImage))
+normalDark.imshow(op.normalizeImage(darkImage))
 normalNormal = comparison.add_subplot(2,2,4)
-normalNormal.imshow(normalizeImage(normalImage))
+normalNormal.imshow(op.normalizeImage(normalImage))
 
-images = loadTrainingImages()
+images = loader.loadTrainingImages()
 
 classA = list(filter(lambda i: i[2] == "D1a", images))
 classB = list(filter(lambda i: i[2] == "B9", images))
@@ -41,34 +43,21 @@ fig = plot.figure()
 axes = fig.add_subplot(1,2,1, projection = '3d', title = 'Using Colors', xlabel = 'Red Mean', ylabel = 'Green Mean', zlabel = 'Blue Mean')
 axes2 = fig.add_subplot(1,2,2, projection = '3d', title = 'Using Normalized Colors', xlabel = 'Normalized Red Mean', ylabel = 'Normalized Green Mean', zlabel = 'Normalized Blue Mean')
 
-def plotFeatures(data, amount, color, marker, label = ''):  
+def plotFeatures(axes, data, featureFunction, amount, color, marker, label = ''):  
     counter = 0
     for image in data[0:amount]:
         print(counter)
         counter+=1
-        #angleFeatures = calculateAngleFeatures(image[0])
-        colorFeatures = calculateColorFeatures(image[0])
-        #angleMoments = calculateAngleMoments(image[0])
+        colorFeatures = featureFunction(image[0])
         axes.scatter(colorFeatures[0],colorFeatures[1],colorFeatures[2], c=color, marker=marker)
     axes.plot([], [], marker, c=color, label=label)
 
-plotFeatures(classA, -1, 'r', 'o', 'D1a')
-plotFeatures(classB, -1, 'b', '^', 'B9')
-plotFeatures(classC, -1, 'g', 'x', 'B5')
+plotFeatures(axes, classA, extractor.calculateColorFeatures, -1, 'r', 'o', 'D1a')
+plotFeatures(axes, classB, extractor.calculateColorFeatures, -1, 'b', '^', 'B9')
+plotFeatures(axes, classC, extractor.calculateColorFeatures, -1, 'g', 'x', 'B5')
 axes.legend(loc = 0, scatterpoints = 1)
 
-def plotFeatures(data, amount, color, marker, label = ''):  
-    counter = 0
-    for image in data[0:amount]:
-        print(counter)
-        counter+=1
-        #angleFeatures = calculateAngleFeatures(image[0])
-        colorFeatures = calculateNormalizedColorFeatures(image[0])
-        #angleMoments = calculateAngleMoments(image[0])
-        axes2.scatter(colorFeatures[0],colorFeatures[1],colorFeatures[2], c=color, marker=marker)
-    axes2.plot([], [], marker, c=color, label=label)
-
-plotFeatures(classA, -1, 'r', 'o', 'D1a')
-plotFeatures(classB, -1, 'b', '^', 'B9')
-plotFeatures(classC, -1, 'g', 'x', 'B5')
+plotFeatures(axes2, classA, extractor.calculateNormalizedColorFeatures, -1, 'r', 'o', 'D1a')
+plotFeatures(axes2, classB, extractor.calculateNormalizedColorFeatures, -1, 'b', '^', 'B9')
+plotFeatures(axes2, classC, extractor.calculateNormalizedColorFeatures, -1, 'g', 'x', 'B5')
 axes2.legend(loc = 0, scatterpoints = 1)
