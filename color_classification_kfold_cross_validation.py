@@ -11,6 +11,7 @@ import image_operations as operations
 import sklearn.cross_validation as cv
 import numpy
 from scipy import misc
+from scipy import stats
 
 def distance(a,b):
     return numpy.sum(numpy.square(numpy.add(a, numpy.multiply(b, -1))))
@@ -27,6 +28,12 @@ def nearestNeighbour(xs, ys, x):
             bestIndex = i
             bestDistance = d
     return ys[bestIndex]
+    
+def kNearestNeighbour(k, xs, ys, x):
+    distances = [distance(x, i) for i in xs] 
+    indexes = numpy.argsort(distances)
+    classes = [ys[indexes[i]] for i in range(k)]
+    return stats.mode(classes)[0][0]
 
 print("Loading images")
 images, classes = loader.loadTrainingAndClasses()
@@ -39,7 +46,7 @@ def resizeProper(image, maxPixels):
     width = int(ratio * height)
     return misc.imresize(image, (width, height))
     
-thumbs = [misc.imresize(x,(50,50)) for x in images]
+thumbs = [misc.imresize(x,(25,25)) for x in images]
 
 print("Calculating features")
 #features = list(map(extractor.calculateNormalizedColorFeatures, images))
@@ -61,7 +68,8 @@ for train_index, test_index in kfold:
     testFeatures  = [features[i] for i in test_index]
     testClasses   = [classes[i] for i in test_index]
     
-    predictedClasses = [nearestNeighbour(trainFeatures, trainClasses, x) for x in testFeatures]
+    #predictedClasses = [nearestNeighbour(trainFeatures, trainClasses, x) for x in testFeatures]
+    predictedClasses = [kNearestNeighbour(10, trainFeatures, trainClasses, x) for x in testFeatures]
     errors[counter-1] = errorRate(testClasses, predictedClasses)
     print(errors[counter-1])
     counter = counter + 1

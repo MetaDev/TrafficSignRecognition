@@ -61,3 +61,17 @@ def calculateAngleMoments(image):
     skew = np.arctan2(skewVector[1], skewVector[0])
     kurtosis = np.arctan2(kurtosisVector[1], kurtosisVector[0])
     return (mean, sd, skew, kurtosis)
+    
+def angleFeatures(image, classAmount = 4):
+    angles, _ = op.calculatePixelAngleAndMagnitude(image)
+    classes = np.zeros(classAmount)
+    for i in range(len(angles)):
+        for j in range(len(angles[0])):
+            angle = angles[i,j]
+            #if angle < 0:
+            #    angle = np.pi + angle
+            angleClass = (angle + np.pi) / (2*np.pi / classAmount)
+            if angleClass == classAmount:
+                angleClass -= 1
+            classes[angleClass] += 1
+    return classes / len(image) / len(image[0])
