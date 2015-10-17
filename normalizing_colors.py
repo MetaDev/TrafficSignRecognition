@@ -18,6 +18,7 @@ import image_operations as op
 import data_loading as loader
 import feature_extraction as extractor
 from matplotlib import pyplot as plot
+from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 darkImage = ndimage.imread("train/diamonds/B9/00585_09701.png")
 normalImage = ndimage.imread("train/diamonds/B9/00042_00233.png")
@@ -42,6 +43,7 @@ classC = list(filter(lambda i: i[2] == "B5", images))
 fig = plot.figure()
 axes = fig.add_subplot(1,2,1, projection = '3d', title = 'Using Colors', xlabel = 'Red Mean', ylabel = 'Green Mean', zlabel = 'Blue Mean')
 axes2 = fig.add_subplot(1,2,2, projection = '3d', title = 'Using Normalized Colors', xlabel = 'Normalized Red Mean', ylabel = 'Normalized Green Mean', zlabel = 'Normalized Blue Mean')
+#axes3 = fig.add_subplot(1,2,2, projection = '3d', title = 'Using Normalized Colors', xlabel = 'Normalized Red Mean', ylabel = 'Normalized Green Mean', zlabel = 'Normalized Blue Mean')
 
 def plotFeatures(axes, data, featureFunction, amount, color, marker, label = ''):  
     counter = 0
@@ -51,6 +53,9 @@ def plotFeatures(axes, data, featureFunction, amount, color, marker, label = '')
         colorFeatures = featureFunction(image[0])
         axes.scatter(colorFeatures[0],colorFeatures[1],colorFeatures[2], c=color, marker=marker)
     axes.plot([], [], marker, c=color, label=label)
+
+def compose(f,g):
+    return lambda x: f(g(x))
 
 plotFeatures(axes, classA, extractor.calculateColorFeatures, -1, 'r', 'o', 'D1a')
 plotFeatures(axes, classB, extractor.calculateColorFeatures, -1, 'b', '^', 'B9')

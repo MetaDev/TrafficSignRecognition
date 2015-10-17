@@ -28,15 +28,10 @@ def calculateAngleFeatures(image, angleDetail = 4):
     return features / (width * height)
     
 def calculateNormalizedColorFeatures(image):
-    pixels = image.size
-    features = np.zeros(3)
-    for i in range(len(image)):
-        for j in range(len(image[0])):
-            length = np.sqrt(image[i,j,0] ** 2 + image[i,j,1] ** 2 + image[i,j,2] ** 2)
-            features[0] += image[i,j,0] / (length + 1)
-            features[1] += image[i,j,1] / (length + 1)
-            features[2] += image[i,j,2] / (length + 1)
-    return features / pixels
+    return calculateColorFeatures(op.normalizeImage(image))
+    
+def calculateSpecialColorFeatures(image):
+    return calculateColorFeatures(op.reduceColorSpace(image))
     
 def calculateColorFeatures(image):
     pixels = image.size
