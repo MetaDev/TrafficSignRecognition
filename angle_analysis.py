@@ -22,17 +22,9 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 darkImage = ndimage.imread("train/diamonds/B9/00585_09701.png")
 normalImage = ndimage.imread("train/diamonds/B9/00042_00233.png")
-
-comparison = plot.figure()
-standardDark = comparison.add_subplot(2,2,1)
-standardDark.imshow(darkImage)
-standardNormal = comparison.add_subplot(2,2,2)
-standardNormal.imshow(normalImage)
-
-normalDark = comparison.add_subplot(2,2,3)
-normalDark.imshow(op.calculatePixelAngleAndMagnitude(darkImage)[0])
-normalNormal = comparison.add_subplot(2,2,4)
-normalNormal.imshow(op.calculatePixelAngleAndMagnitude(normalImage)[0])
+playImage = ndimage.imread("train/rectangles_down/F12a/00441_02146.png")
+circleImage = ndimage.imread("train/red_circles/C3/01312_08809.png")
+squareImage = ndimage.imread("train/squares/F19/00817_05499.png")
 
 images = loader.loadTrainingImages()
 
@@ -42,8 +34,6 @@ classC = list(filter(lambda i: i[2] == "B5", images))
 
 fig = plot.figure()
 axes = fig.add_subplot(1,2,1, projection = '3d', title = 'Using Colors', xlabel = 'Red Mean', ylabel = 'Green Mean', zlabel = 'Blue Mean')
-axes2 = fig.add_subplot(1,2,2, projection = '3d', title = 'Using Normalized Colors', xlabel = 'Normalized Red Mean', ylabel = 'Normalized Green Mean', zlabel = 'Normalized Blue Mean')
-#axes3 = fig.add_subplot(1,2,2, projection = '3d', title = 'Using Normalized Colors', xlabel = 'Normalized Red Mean', ylabel = 'Normalized Green Mean', zlabel = 'Normalized Blue Mean')
 
 def plotFeatures(axes, data, featureFunction, amount, color, marker, label = ''):  
     counter = 0
@@ -57,12 +47,7 @@ def plotFeatures(axes, data, featureFunction, amount, color, marker, label = '')
 def compose(f,g):
     return lambda x: f(g(x))
 
-plotFeatures(axes, classA, extractor.calculateColorFeatures, -1, 'r', 'o', 'D1a')
-plotFeatures(axes, classB, extractor.calculateColorFeatures, -1, 'b', '^', 'B9')
-plotFeatures(axes, classC, extractor.calculateColorFeatures, -1, 'g', 'x', 'B5')
+plotFeatures(axes, classA, extractor.angleFeatures, -1, 'r', 'o', 'D1a')
+plotFeatures(axes, classB, extractor.angleFeatures, -1, 'b', '^', 'B9')
+plotFeatures(axes, classC, extractor.angleFeatures, -1, 'g', 'x', 'B5')
 axes.legend(loc = 0, scatterpoints = 1)
-
-plotFeatures(axes2, classA, extractor.calculateNormalizedColorFeatures, -1, 'r', 'o', 'D1a')
-plotFeatures(axes2, classB, extractor.calculateNormalizedColorFeatures, -1, 'b', '^', 'B9')
-plotFeatures(axes2, classC, extractor.calculateNormalizedColorFeatures, -1, 'g', 'x', 'B5')
-axes2.legend(loc = 0, scatterpoints = 1)

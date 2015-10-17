@@ -62,16 +62,42 @@ def calculateAngleMoments(image):
     kurtosis = np.arctan2(kurtosisVector[1], kurtosisVector[0])
     return (mean, sd, skew, kurtosis)
     
-def angleFeatures(image, classAmount = 4):
-    angles, _ = op.calculatePixelAngleAndMagnitude(image)
+def angleFeatures(image, classAmount = 3, threshold = 100):
+    angles, magnitudes = op.calculatePixelAngleAndMagnitude(image)
     classes = np.zeros(classAmount)
+    total = 1
     for i in range(len(angles)):
         for j in range(len(angles[0])):
             angle = angles[i,j]
-            #if angle < 0:
-            #    angle = np.pi + angle
-            angleClass = (angle + np.pi) / (2*np.pi / classAmount)
-            if angleClass == classAmount:
-                angleClass -= 1
-            classes[angleClass] += 1
-    return classes / len(image) / len(image[0])
+            if angle < 0:
+                angle += np.pi
+            angle = (angle + np.pi/4) % np.pi
+            if magnitudes[i,j] > threshold:
+                angleClass = angle / (np.pi / classAmount)
+                if angleClass == classAmount:
+                    angleClass -= 1
+                classes[angleClass] += 1
+                total += 1                
+    return classes / total
+    
+def angleColorFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100):
+    return np.concatenate((angleFeatures(image, angleClassAmount, angleMagnitudeThreshold), calculateNormalizedColorFeatures(image) / (255 * angleClassAmount)))
+    
+#Should probably be inside image_operations as this produces an image
+def angleClasses(image, classAmount = 4, threshold = 100):
+    angles, magnitudes = op.calculatePixelAngleAndMagnitude(image)
+    result = angles.copy()
+    for i in range(len(angles)):
+        for j in range(len(angles[0])):
+            angle = angles[i,j]
+            if angle < 0:
+                angle += np.pi
+            angle = (angle + np.pi/4) % np.pi
+            if magnitudes[i,j] > threshold:
+                angleClass = angle / (np.pi / classAmount)
+                if angleClass == classAmount:
+                    angleClass -= 1
+                result[i,j] = int(angleClass)
+            else:
+                result[i,j] = -1
+    return result
