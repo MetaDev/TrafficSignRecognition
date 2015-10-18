@@ -80,8 +80,26 @@ def angleFeatures(image, classAmount = 3, threshold = 100):
                 total += 1                
     return classes / total 
     
+#Van Pieter
+def quadrantAngleFeatures(image, angleclasses = 4, angleMagnitudeThreshold = 100):
+    features = np.zeros(angleclasses*4)
+    for quadrant in range(4):
+        horizontal = quadrant % 2       #0 or 1 for which horizontal quadrant
+        vertical = (quadrant / 2 ) >= 1 #0 or 1 for which vertical quadrant
+        size = len(image)/2
+        subthumb = image[horizontal*size:(horizontal+1)*size,vertical*size:(vertical+1)*size,:]
+        features[quadrant*angleclasses:(quadrant+1)*angleclasses] = angleFeatures(subthumb, angleclasses, angleMagnitudeThreshold)  
+    return features
+    
+#Combined features
 def angleColorFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100, colorScale = 1.0):
     return np.concatenate((angleFeatures(image, angleClassAmount, angleMagnitudeThreshold), calculateNormalizedColorFeatures(image) * colorScale / (255 * angleClassAmount)))
+    
+def angleQuadrantAngleFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100):
+    return np.concatenate((angleFeatures(image, angleClassAmount, angleMagnitudeThreshold), quadrantAngleFeatures(image, angleClassAmount, angleMagnitudeThreshold)))
+
+def colorQuadrantAngleFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100, colorScale = 1.0):
+    return np.concatenate((quadrantAngleFeatures(image, angleClassAmount, angleMagnitudeThreshold), calculateNormalizedColorFeatures(image) * colorScale / (255 * angleClassAmount)))
     
 #Should probably be inside image_operations as this produces an image
 def angleClasses(image, classAmount = 4, threshold = 100):

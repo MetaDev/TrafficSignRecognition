@@ -46,16 +46,15 @@ def resizeProper(image, maxPixels):
     width = int(ratio * height)
     return misc.imresize(image, (width, height))
     
-thumbsize = 50
-thumbs = [misc.imresize(x,(thumbsize,thumbsize)) for x in images]
+thumbs = [misc.imresize(x,(25,25)) for x in images]
 
 print("Calculating features")
 #features = list(map(extractor.calculateNormalizedColorFeatures, images))
-size = 15
-features = numpy.zeros([len(images), size + 3])
+angleClasses = 15
+features = numpy.zeros([len(images), 5 * angleClasses])
 for i in range(amount):
     print(i, "/", amount)
-    features[i] = extractor.angleColorFeatures(thumbs[i], size, 100, 160.0)
+    features[i] = extractor.angleQuadrantAngleFeatures(thumbs[i], angleClasses)
     
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
