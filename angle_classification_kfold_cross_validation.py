@@ -75,3 +75,4 @@ for train_index, test_index in kfold:
     counter = counter + 1
     
 print("mean error ", errors.mean())
+print('\a')

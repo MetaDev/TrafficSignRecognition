@@ -12,6 +12,7 @@ import sklearn.cross_validation as cv
 import numpy
 from scipy import misc
 from scipy import stats
+from sklearn import neighbors
 
 def distance(a,b):
     return numpy.sum(numpy.square(numpy.add(a, numpy.multiply(b, -1))))
@@ -55,7 +56,7 @@ angleClasses = 7
 features = numpy.zeros([len(images), 4 * angleClasses + 3])
 for i in range(amount):
     print(i, "/", amount)
-    features[i] = extractor.colorQuadrantAngleFeatures(thumbs[i], angleClasses, 100, 160.0)
+    features[i] = extractor.colorQuadrantAngleFeatures(thumbs[i], angleClasses, 100, 160)
     
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
@@ -70,8 +71,10 @@ for train_index, test_index in kfold:
     testFeatures  = [features[i] for i in test_index]
     testClasses   = [classes[i] for i in test_index]
     
-    predictedClasses = [nearestNeighbour(trainFeatures, trainClasses, x) for x in testFeatures]
-    #predictedClasses = [kNearestNeighbour(10, trainFeatures, trainClasses, x) for x in testFeatures]
+    model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+    model.fit(trainFeatures, trainClasses)    
+    
+    predictedClasses = model.predict(testFeatures)
     errors[counter-1] = errorRate(testClasses, predictedClasses)
     print(errors[counter-1])
     counter = counter + 1
