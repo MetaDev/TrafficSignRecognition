@@ -50,10 +50,11 @@ thumbs = [misc.imresize(x,(25,25)) for x in images]
 
 print("Calculating features")
 #features = list(map(extractor.calculateNormalizedColorFeatures, images))
-features = numpy.zeros([len(images), 18])
+size = 15
+features = numpy.zeros([len(images), size + 3])
 for i in range(amount):
     print(i, "/", amount)
-    features[i] = extractor.angleColorFeatures(thumbs[i], 15)
+    features[i] = extractor.angleColorFeatures(thumbs[i], size, 100, 160.0)
     
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
@@ -75,3 +76,4 @@ for train_index, test_index in kfold:
     counter = counter + 1
     
 print("mean error ", errors.mean())
+print('\a')

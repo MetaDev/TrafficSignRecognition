@@ -80,8 +80,8 @@ def angleFeatures(image, classAmount = 3, threshold = 100):
                 total += 1                
     return classes / total
     
-def angleColorFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100):
-    return np.concatenate((angleFeatures(image, angleClassAmount, angleMagnitudeThreshold), calculateNormalizedColorFeatures(image) / (255 * angleClassAmount)))
+def angleColorFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100, colorScale = 1.0):
+    return np.concatenate((angleFeatures(image, angleClassAmount, angleMagnitudeThreshold), calculateNormalizedColorFeatures(image) * colorScale / (255 * angleClassAmount)))
     
 #Should probably be inside image_operations as this produces an image
 def angleClasses(image, classAmount = 4, threshold = 100):
