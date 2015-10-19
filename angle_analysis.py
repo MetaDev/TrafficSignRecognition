@@ -14,7 +14,6 @@ TODO: name some more stuff
 """
 
 from scipy import ndimage
-import image_operations as op
 import data_loading as loader
 import feature_extraction as extractor
 from matplotlib import pyplot as plot

@@ -84,6 +84,19 @@ def splitColorFeatures(image, splits = 3):
             features[index+2] = subFeatures[2]
     return features
     
+def splitAngleFeatures(image, splits = 3, angleClasses = 4, angleMagnitudeThreshold = 100):
+    features = np.zeros(angleClasses * splits * splits)
+    width = len(image)
+    height = len(image[0])
+    for i in range(splits):
+        for j in range(splits):
+            index = (i*splits + j) * angleClasses
+            subImage = image[width/splits*i:width/splits*(i+1), height/splits*j:height/splits*(j+1), :]
+            subFeatures = angleFeatures(subImage, angleClasses, angleMagnitudeThreshold)
+            for k in range(angleClasses):
+                features[index + k] = subFeatures[k]
+    return features
+    
 #Van Pieter
 def quadrantAngleFeatures(image, angleclasses = 4, angleMagnitudeThreshold = 100):
     features = np.zeros(angleclasses*4)
@@ -104,6 +117,9 @@ def angleQuadrantAngleFeatures(image, angleClassAmount = 3, angleMagnitudeThresh
 
 def colorQuadrantAngleFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100, colorScale = 1.0):
     return np.concatenate((quadrantAngleFeatures(image, angleClassAmount, angleMagnitudeThreshold), calculateNormalizedColorFeatures(image) * colorScale / (255 * angleClassAmount)))
+    
+def splitAngleSplitColorFeatures(image, angleSplit = 3, angleClassAmount = 3, angleMagnitudeThreshold = 100, colorSplit = 3, colorScale = 1.0):
+    return np.concatenate((splitAngleFeatures(image, angleSplit, angleClassAmount, angleMagnitudeThreshold), splitColorFeatures(image, colorSplit) * colorScale))    
     
 #Should probably be inside image_operations as this produces an image
 def angleClasses(image, classAmount = 4, threshold = 100):

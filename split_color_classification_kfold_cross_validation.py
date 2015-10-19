@@ -13,6 +13,10 @@ import numpy
 from scipy import misc
 from scipy import stats
 from sklearn import neighbors
+from sklearn import svm
+from sklearn import grid_search
+from sklearn import lda
+from sklearn import qda
 
 def distance(a,b):
     return numpy.sum(numpy.square(numpy.add(a, numpy.multiply(b, -1))))
@@ -47,7 +51,7 @@ def resizeProper(image, maxPixels):
     width = int(ratio * height)
     return misc.imresize(image, (width, height))
     
-thumbsize = 25
+thumbsize = 50
 thumbs = [misc.imresize(x,(thumbsize, thumbsize)) for x in images]
 
 print("Calculating features")
@@ -58,6 +62,12 @@ for i in range(amount):
     print(i, "/", amount)
     features[i] = extractor.splitColorFeatures(thumbs[i],splits)
     
+#model = grid_search.GridSearchCV(svm.SVC(),{'kernel' : ['poly'], 'C' : [1, 10, 100, 1000], 'degree' : [4,7,10], 'shrinking' : [True, False]})    
+#model.fit(features, classes)    
+#print(model.best_estimator_)
+#print('\a')
+
+
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
 
@@ -72,8 +82,10 @@ for train_index, test_index in kfold:
     testFeatures  = [features[i] for i in test_index]
     testClasses   = [classes[i] for i in test_index]
     
-    model = neighbors.KNeighborsClassifier(n_neighbors = 1)
-    model.fit(trainFeatures, trainClasses)    
+    #model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+    model = svm.SVC(kernel = 'poly', degree = 7)
+    
+    model.fit(trainFeatures, trainClasses)
     
     predictedClasses = model.predict(testFeatures)
     errors[counter-1] = errorRate(testClasses, predictedClasses)
