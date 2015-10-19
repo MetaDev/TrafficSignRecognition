@@ -10,12 +10,11 @@ from scipy import signal
 from skimage import exposure
 
 def normalizeImage(image):
-    normalized = image.copy()
-    for i in range(len(image)):
-        for j in range(len(image[0])):
-            length = numpy.sqrt(image[i,j,0] ** 2 + image[i,j,1] ** 2 + image[i,j,2] ** 2) + 1
-            normalized[i,j,:] = [int(normalized[i,j,0] / length * 255), int(normalized[i,j,1] / length * 255), int(normalized[i,j,2] / length * 255)]
-    return normalized
+    reds = image[:,:,0].astype(float)
+    greens = image[:,:,1].astype(float)
+    blues = image[:,:,2].astype(float)
+    lengths = numpy.sqrt(numpy.square(reds) + numpy.square(greens) + numpy.square(blues)) + 0.01
+    return (numpy.dstack((reds/ lengths, greens/lengths, blues/lengths)) * 255).astype(numpy.uint8)
     
 def correctWhiteBalance(image):
     reds   = image[:,:,0]

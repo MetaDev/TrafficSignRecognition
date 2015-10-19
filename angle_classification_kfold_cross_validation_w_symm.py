@@ -12,6 +12,7 @@ import sklearn.cross_validation as cv
 import numpy
 from scipy import misc
 from scipy import stats
+from sklearn import neighbors
 
 def distance(a,b):
     return numpy.sum(numpy.square(numpy.add(a, numpy.multiply(b, -1))))
@@ -57,7 +58,6 @@ symmetryfeatures = numpy.zeros([len(images), angleclasses*4])   #to calculate th
 for i in range(amount):
     print(i, "/", amount)
     for quadrant in range(4):
-        print("quadrant", quadrant)
         horizontal = quadrant % 2       #0 or 1 for which horizontal quadrant
         vertical = (quadrant / 2 ) >= 1 #0 or 1 for which vertical quadrant
         size = thumbsize/2
@@ -77,7 +77,10 @@ for train_index, test_index in kfold:
     testFeatures  = [symmetryfeatures[i] for i in test_index]
     testClasses   = [classes[i] for i in test_index]
     
-    predictedClasses = [nearestNeighbour(trainFeatures, trainClasses, x) for x in testFeatures]
+    model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+    model.fit(trainFeatures, trainClasses)    
+    
+    predictedClasses = model.predict(testFeatures)
     #predictedClasses = [kNearestNeighbour(10, trainFeatures, trainClasses, x) for x in testFeatures]
     errors[counter-1] = errorRate(testClasses, predictedClasses)
     print(errors[counter-1])

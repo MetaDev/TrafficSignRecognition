@@ -34,14 +34,11 @@ def calculateSpecialColorFeatures(image):
     return calculateColorFeatures(op.reduceColorSpace(image))
     
 def calculateColorFeatures(image):
-    pixels = image.size
     features = np.zeros(3)
-    for i in range(len(image)):
-        for j in range(len(image[0])):
-            features[0] += image[i,j,0]
-            features[1] += image[i,j,1]
-            features[2] += image[i,j,2]
-    return features / pixels
+    features[0] = 3 * image[:,:,0].mean()
+    features[1] = 3 * image[:,:,1].mean()
+    features[2] = 3 * image[:,:,2].mean()
+    return features
     
 def calculateAngleMoments(image):
     angles, magnitudes = op.calculatePixelAngleAndMagnitude(image)
@@ -64,21 +61,28 @@ def calculateAngleMoments(image):
     
 def angleFeatures(image, classAmount = 3, threshold = 100):
     angles, magnitudes = op.calculatePixelAngleAndMagnitude(image)
-    classes = np.zeros(classAmount)
-    total = 1
-    for i in range(len(angles)):
-        for j in range(len(angles[0])):
-            angle = angles[i,j]
-            if angle < 0:
-                angle += np.pi
-            angle = (angle + np.pi/4) % np.pi
-            if magnitudes[i,j] > threshold:
-                angleClass = angle / (np.pi / classAmount)
-                if angleClass == classAmount:
-                    angleClass -= 1
-                classes[angleClass] += 1
-                total += 1                
-    return classes / total 
+    concreteAngles = (angles + (angles < 0) * np.pi + np.pi/4) % np.pi
+    angleClasses = (concreteAngles / (np.pi / classAmount)).astype(int)
+    barrier = magnitudes > threshold
+    filteredAngleClasses = (angleClasses + 1) * barrier
+    importantAngleClasses = filteredAngleClasses[np.nonzero(filteredAngleClasses)] - 1
+    counted = np.bincount(importantAngleClasses) / len(importantAngleClasses)
+    return np.append(counted, np.zeros(classAmount - len(counted)))
+    
+def splitColorFeatures(image, splits = 3):
+    features = np.zeros(3 * splits * splits)
+    normalized = op.normalizeImage(image)
+    width = len(normalized)
+    height = len(normalized[0])
+    for i in range(splits):
+        for j in range(splits):
+            index = (i*splits + j) * 3
+            subImage = normalized[height/splits*i:height/splits*(i+1), width/splits*j:width/splits*(j+1), :]
+            subFeatures = calculateColorFeatures(subImage)
+            features[index] = subFeatures[0]
+            features[index+1] = subFeatures[1]
+            features[index+2] = subFeatures[2]
+    return features
     
 #Van Pieter
 def quadrantAngleFeatures(image, angleclasses = 4, angleMagnitudeThreshold = 100):
