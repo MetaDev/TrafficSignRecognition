@@ -15,6 +15,7 @@ import math
 from scipy import misc
 from scipy import stats
 from sklearn import neighbors
+from sklearn import cross_validation
 
 def distance(a,b):
     return numpy.sum(numpy.square(numpy.add(a, numpy.multiply(b, -1))))
@@ -67,21 +68,22 @@ def resizeProper(image, maxPixels):
     width = int(ratio * height)
     return misc.imresize(image, (width, height))
     
-thumbsize = 50;
+thumbsize = 100;
 thumbs = [misc.imresize(x,(thumbsize,thumbsize)) for x in images]   #resize !!
 thumbs = [rgb2gray(x) for x in thumbs]                              #grayscale !!
 
 print("Calculating features")
 
-frequencyclasses = 5         
-subsect_v = 5;
-subsect_h = 5;                               #deviding the frequency spectrum into this many equal classes
+frequencyclasses = 5       
+subsect_v = 10
+subsect_h = 10                               #deviding the frequency spectrum into this many equal classes
                                                                 # !! should devide (thumbsize/2), or more mathematical notation (thumbsize/2)%frequencyclasses = 0
 features = numpy.zeros([len(images), frequencyclasses*subsect_v*subsect_h])     #to save feature class frequencies
 
 
 for i in range(amount):
-    print(i, "/", amount)
+    if i%100==0:
+        print(i, "/", amount)
     for subsection in range(subsect_v*subsect_h):
         horizontal = subsection % subsect_h
         vertical = math.floor(subsection/subsect_v)
@@ -100,15 +102,28 @@ for i in range(amount):
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
 
-print("Evaluating model with KFold")
+
+print("Evaluating model with KFold (1)")
+model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+score = cross_validation.cross_val_score(model, features, classes, cv = 5)
+print(score)
+
+
+print("Evaluating model with KFold (2)")
 counter = 0
 errors  = numpy.zeros(len(kfold))
+
+c = numpy.c_[features.reshape(len(features), -1), classes.reshape(len(classes), -1)]
+numpy.random.shuffle(c)
+shuffeled_features = c[:, :features.size//len(features)].reshape(features.shape)
+shuffeled_classes = c[:, features.size//len(features):].reshape(classes.shape)
+
 for train_index, test_index in kfold:
     print(counter)
-    trainFeatures = [features[i] for i in train_index]
-    trainClasses  = [classes[i] for i in train_index]
-    testFeatures  = [features[i] for i in test_index]
-    testClasses   = [classes[i] for i in test_index]
+    trainFeatures = [shuffeled_features[i] for i in train_index]
+    trainClasses  = [shuffeled_classes[i] for i in train_index]
+    testFeatures  = [shuffeled_features[i] for i in test_index]
+    testClasses   = [shuffeled_classes[i] for i in test_index]
     
     model = neighbors.KNeighborsClassifier(n_neighbors = 1)
     model.fit(trainFeatures, trainClasses)    
@@ -118,6 +133,8 @@ for train_index, test_index in kfold:
     errors[counter-1] = errorRate(testClasses, predictedClasses)
     print(errors[counter-1])
     counter = counter + 1
+    
+
     
 print("mean error ", errors.mean())
 print('\a')
