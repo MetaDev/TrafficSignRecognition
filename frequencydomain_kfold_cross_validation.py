@@ -56,6 +56,7 @@ def mask_frequency(fshift, thumbsize, frequencyclasses, fc):
         m[:,0:middle-stepsize*(fc),] = 0
         m[:,middle+stepsize*(fc+1)+1:thumbsize] = 0
     return m
+
     
 def frequencyFeatures(thumbs, frequencyclasses = 25, subsect_v = 10, subsect_h=10, selectedclasses = [22,23,24]):
     features = numpy.ones([len(images), len(selectedclasses)*subsect_v*subsect_h])     #to save feature class frequencies
@@ -81,8 +82,9 @@ def frequencyFeatures(thumbs, frequencyclasses = 25, subsect_v = 10, subsect_h=1
                     index += 1
     return features
 
+
 print("Loading images")
-images, classes = loader.loadProblematicImagesAndClasses()
+images, classes = loader.loadTrainingAndClasses()
 amount = len(images)
 
 print("Making thumbnails")
@@ -97,7 +99,7 @@ thumbs = [misc.imresize(x,(thumbsize,thumbsize)) for x in images]   #resize !!
 thumbs = [rgb2gray(x) for x in thumbs]                              #grayscale !!
 
 print("Calculating features")
-                                        
+
 features = frequencyFeatures(thumbs)
 
 
