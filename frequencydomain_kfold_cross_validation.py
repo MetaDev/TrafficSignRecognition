@@ -56,9 +56,33 @@ def mask_frequency(fshift, thumbsize, frequencyclasses, fc):
         m[:,0:middle-stepsize*(fc),] = 0
         m[:,middle+stepsize*(fc+1)+1:thumbsize] = 0
     return m
+    
+def frequencyFeatures(thumbs, frequencyclasses = 5, subsect_v = 10, subsect_h=10, selectedclasses = [3,4]):
+    features = numpy.zeros([len(images), len(selectedclasses)*subsect_v*subsect_h])     #to save feature class frequencies
+    for i in range(amount):
+        if i%100==0:
+            print("freq:", i, "/", amount)
+        for subsection in range(subsect_v*subsect_h):
+            horizontal = subsection % subsect_h
+            vertical = math.floor(subsection/subsect_v)
+            h_size = thumbsize/subsect_h
+            v_size = thumbsize/subsect_v
+            subthumb = thumbs[i][horizontal*h_size:(horizontal+1)*h_size,vertical*v_size:(vertical+1)*v_size]
+            fthumb = numpy.fft.fft2(subthumb)  #fourier transform
+            fshift = numpy.fft.fftshift(fthumb) #shift 0 frequency to center
+            index = 0
+            for fc in range(frequencyclasses):
+                if fc in selectedclasses:
+                    m = mask_frequency(fshift,thumbsize,frequencyclasses,fc) #select frequency components of this class
+                    f_ishift = numpy.fft.ifftshift(m)                        #inverse shift
+                    img_back = numpy.fft.ifft2(f_ishift)                     #inverse transform
+                    img_back = numpy.abs(img_back)
+                    features[i][subsection*len(selectedclasses)+index] = sum(sum(img_back))/(thumbsize*thumbsize)   #last multiplication is so there is more weight on high frequencies (edges)
+                    index += 1
+    return features
 
 print("Loading images")
-images, classes = loader.loadTrainingAndClasses()
+images, classes = loader.loadProblematicImagesAndClasses()
 amount = len(images)
 
 print("Making thumbnails")
@@ -68,35 +92,13 @@ def resizeProper(image, maxPixels):
     width = int(ratio * height)
     return misc.imresize(image, (width, height))
     
-thumbsize = 100;
+thumbsize = 50;
 thumbs = [misc.imresize(x,(thumbsize,thumbsize)) for x in images]   #resize !!
 thumbs = [rgb2gray(x) for x in thumbs]                              #grayscale !!
 
 print("Calculating features")
-
-frequencyclasses = 5       
-subsect_v = 10
-subsect_h = 10                               #deviding the frequency spectrum into this many equal classes
-                                                                # !! should devide (thumbsize/2), or more mathematical notation (thumbsize/2)%frequencyclasses = 0
-features = numpy.zeros([len(images), frequencyclasses*subsect_v*subsect_h])     #to save feature class frequencies
-
-
-for i in range(amount):
-    if i%100==0:print(i, "/", amount)
-    for subsection in range(subsect_v*subsect_h):
-        horizontal = subsection % subsect_h
-        vertical = math.floor(subsection/subsect_v)
-        h_size = thumbsize/subsect_h
-        v_size = thumbsize/subsect_v
-        subthumb = thumbs[i][horizontal*h_size:(horizontal+1)*h_size,vertical*v_size:(vertical+1)*v_size]
-        fthumb = numpy.fft.fft2(subthumb)  #fourier transform
-        fshift = numpy.fft.fftshift(fthumb) #shift 0 frequency to center
-        for fc in range(frequencyclasses):
-            m = mask_frequency(fshift,thumbsize,frequencyclasses,fc) #select frequency components of this class
-            f_ishift = numpy.fft.ifftshift(m)                        #inverse shift
-            img_back = numpy.fft.ifft2(f_ishift)                     #inverse transform
-            img_back = numpy.abs(img_back)
-            features[i][subsection*frequencyclasses+fc] = sum(sum(img_back))/(thumbsize*thumbsize)*(fc+1)*(fc+1)   #last multiplication is so there is more weight on high frequencies (edges)
+                                        
+features = frequencyFeatures(thumbs)
 
 
 print("Evaluating model with KFold (1)")
