@@ -27,10 +27,13 @@ thumbs = [misc.imresize(x,(thumbsize, thumbsize)) for x in images]
 print("Calculating features")
 #features = list(map(extractor.calculateNormalizedColorFeatures, images))
 splits = 5
-features = numpy.zeros([len(images), splits*splits*3])
+features = numpy.zeros([len(images), 100 + splits * splits * 3])
 for i in range(amount):
     print(i, "/", amount)
-    features[i] = extractor.splitColorFeatures(thumbs[i],splits)
+    #features[i] = extractor.splitColorFeatures(thumbs[i],splits)
+    harald = extractor.calculateDarktoBrightRatio(thumbs[i])
+    rian = extractor.splitColorFeatures(thumbs[i], splits)
+    features[i] = numpy.append(harald, rian)
     
 #model = grid_search.GridSearchCV(svm.SVC(),{'kernel' : ['poly'], 'C' : [1, 10, 100, 1000], 'degree' : [4,7,10], 'shrinking' : [True, False]})    
 #model.fit(features, classes)    

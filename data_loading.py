@@ -27,9 +27,7 @@ def loadTrainingAndClasses():
     return [ndimage.imread(x) for x in imagePaths], [Path(x).parent.name for x in imagePaths]
     
 def loadProblematicImagesAndClasses():
-    problemClasses = ['A14', 'A1AB', 'A1CD', 'A23', 'A31', 'A51', 'A7A', 'A7B', 'B15A',
-       'B17', 'C21', 'C3', 'C43', 'D7', 'D9', 'F1', 'F4b', 'begin', 'end',
-       'lang', 'm']
+    problemClasses = ['A51', 'B17', 'begin', 'end', 'lang']
     images, classes = loadTrainingAndClasses()
     filteredImageClasses = numpy.array(list(filter(lambda x: x[1] in problemClasses, zip(images,classes))))
     return filteredImageClasses[:,0], filteredImageClasses[:, 1]
