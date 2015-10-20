@@ -85,8 +85,8 @@ def filterClassFromImages(images,classes,className):
      return[images[i] for i in range(len(images)) if classes[i] == className]
             
 print("Loading images")
-images, classes = loader.loadProblematicImagesAndClasses()
-#images, classes = loader.loadTrainingAndClasses()
+#images, classes = loader.loadProblematicImagesAndClasses()
+images, classes = loader.loadTrainingAndClasses()
 
 amount = len(images)
 

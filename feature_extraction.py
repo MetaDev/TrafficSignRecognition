@@ -10,7 +10,9 @@ import numpy as np
 import numpy
 import copy
 import math
+import scipy
 from scipy import stats
+from enum import Enum
 
 def calculateAngleFeatures(image, angleDetail = 4):
     height = len(image)
@@ -146,6 +148,47 @@ def frequencyFeatures(image, frequencyclasses = 5, subsect_v = 10, subsect_h=10,
                 img_back = numpy.abs(img_back)
                 features[subsection*len(selectedclasses)+index] = sum(sum(img_back))/(thumbsize*thumbsize)   #last multiplication is so there is more weight on high frequencies (edges)
     return features
+    
+#harald
+def calcPixelBrightness(r,g,b):
+    return 0.299*math.pow(r,2)+0.587*math.pow(g,2) + 0.114*math.pow(b,2)
+    
+class Interpolation(Enum):
+    nearest = 0
+    bilinear = 1
+    bicubic = 2
+    cubic = 3
+
+def calculateDarktoBrightRatio(image, brightThreshhold = 0.8, darkThreshhold=0.1, nrOfBlocks=10, interpolation=1, trimBorderFraction=0.2):
+    height = len(image)
+    width = len(image[0]) 
+    #trim borders of the image 
+    image=image[height*(trimBorderFraction): height-height*(trimBorderFraction), width*(trimBorderFraction): width-width*(trimBorderFraction), :]
+
+    height = len(image)
+    width = len(image[0]) 
+    #TODO calculate brightness distribution
+    
+    #first calculate brightness for each pixel than resize array
+    imageBrightness = numpy.zeros((height,width))
+    # a possible improvement would be to check if we are calculating the density inside the sign or not
+    # we want to ignore the environments influence on the density
+    # TODO accelerate with numpy
+    for i in range(height):
+        for j in range(width):
+            r = image[i, j, 0]
+            g = image[i, j, 1]
+            b = image[i, j, 2]
+            #convert rgb to brightness
+            imageBrightness[height-i-1][j]= calcPixelBrightness(r,g,b)
+           
+    #TODO, filter, only count very dark and bright pixels (threshhold) 
+    #set everything to bright (1), dont consider pixels in the corners, ther'll rarely be a figure
+    #use scyppy image resize to create blocks   
+    reducedImageBrightness=scipy.misc.imresize(imageBrightness,(nrOfBlocks,nrOfBlocks),Interpolation(interpolation).name)   
+    #reducedImageBrightness=scipy.ndimage.interpolation.zoom(imageBrightness,(nrOfBlocks/width,nrOfBlocks/height),order=interpolation)  
+    #flatten feature
+    return reducedImageBrightness.flatten()    
     
 #Combined features
 def angleColorFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100, colorScale = 1.0):
