@@ -12,11 +12,12 @@ import numpy
 from scipy import misc
 from scipy import stats
 from sklearn import neighbors
+from sklearn import svm
 from sklearn import cross_validation
 
 print("Loading images")
-images, classes = loader.loadProblematicImagesAndClasses()
-#images, classes = loader.loadTrainingAndClasses()
+#images, classes = loader.loadProblematicImagesAndClasses()
+images, classes = loader.loadTrainingAndClasses()
 amount = len(images)
 
 print("Making thumbnails")
@@ -42,14 +43,15 @@ for i in range(amount):
 
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
-model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+#model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+model = svm.SVC(kernel = 'linear')
 score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
 print(score)
 print(score.mean())
 
-predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
-wrongIndexes = numpy.nonzero(predictions != classes)
-uniqueWrongs, counts = numpy.unique(numpy.append(predictions[[wrongIndexes]], numpy.array(classes)[[wrongIndexes]]), return_counts = True)
-wrongs = uniqueWrongs[counts > 10]
+#predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
+#wrongIndexes = numpy.nonzero(predictions != classes)
+#uniqueWrongs, counts = numpy.unique(numpy.append(predictions[[wrongIndexes]], numpy.array(classes)[[wrongIndexes]]), return_counts = True)
+#wrongs = uniqueWrongs[counts > 10]
 
 print('\a')
