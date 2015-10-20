@@ -57,7 +57,7 @@ def mask_frequency(fshift, thumbsize, frequencyclasses, fc):
         m[:,middle+stepsize*(fc+1)+1:thumbsize] = 0
     return m
     
-def frequencyFeatures(thumbs, frequencyclasses = 25, subsect_v = 10, subsect_h=10, selectedclasses = [20,21,22,23,24]):
+def frequencyFeatures(thumbs, frequencyclasses = 25, subsect_v = 10, subsect_h=10, selectedclasses = [22,23,24]):
     features = numpy.ones([len(images), len(selectedclasses)*subsect_v*subsect_h])     #to save feature class frequencies
     for i in range(amount):
         if i%100==0:
