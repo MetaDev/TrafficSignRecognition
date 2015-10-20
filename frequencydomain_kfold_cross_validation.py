@@ -82,8 +82,7 @@ features = numpy.zeros([len(images), frequencyclasses*subsect_v*subsect_h])     
 
 
 for i in range(amount):
-    if i%100==0:
-        print(i, "/", amount)
+    if i%100==0:print(i, "/", amount)
     for subsection in range(subsect_v*subsect_h):
         horizontal = subsection % subsect_h
         vertical = math.floor(subsection/subsect_v)
@@ -99,13 +98,11 @@ for i in range(amount):
             img_back = numpy.abs(img_back)
             features[i][subsection*frequencyclasses+fc] = sum(sum(img_back))/(thumbsize*thumbsize)*(fc+1)*(fc+1)   #last multiplication is so there is more weight on high frequencies (edges)
 
-print("Producing KFold indexes")
-kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
-
 
 print("Evaluating model with KFold (1)")
 model = neighbors.KNeighborsClassifier(n_neighbors = 1)
-score = cross_validation.cross_val_score(model, features, classes, cv = 5)
+kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
+score = cross_validation.cross_val_score(model, features, classes, cv = kfold)
 print(score)
 
 
@@ -113,17 +110,13 @@ print("Evaluating model with KFold (2)")
 counter = 0
 errors  = numpy.zeros(len(kfold))
 
-c = numpy.c_[features.reshape(len(features), -1), classes.reshape(len(classes), -1)]
-numpy.random.shuffle(c)
-shuffeled_features = c[:, :features.size//len(features)].reshape(features.shape)
-shuffeled_classes = c[:, features.size//len(features):].reshape(classes.shape)
 
 for train_index, test_index in kfold:
     print(counter)
-    trainFeatures = [shuffeled_features[i] for i in train_index]
-    trainClasses  = [shuffeled_classes[i] for i in train_index]
-    testFeatures  = [shuffeled_features[i] for i in test_index]
-    testClasses   = [shuffeled_classes[i] for i in test_index]
+    trainFeatures = [features[i] for i in train_index]
+    trainClasses  = [classes[i] for i in train_index]
+    testFeatures  = [features[i] for i in test_index]
+    testClasses   = [classes[i] for i in test_index]
     
     model = neighbors.KNeighborsClassifier(n_neighbors = 1)
     model.fit(trainFeatures, trainClasses)    
