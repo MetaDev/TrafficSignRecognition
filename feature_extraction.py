@@ -7,6 +7,9 @@ Created on Fri Oct 16 21:51:48 2015
 
 import image_operations as op
 import numpy as np
+import numpy
+import copy
+import math
 from scipy import stats
 
 def calculateAngleFeatures(image, angleDetail = 4):
@@ -106,6 +109,42 @@ def quadrantAngleFeatures(image, angleclasses = 4, angleMagnitudeThreshold = 100
         size = len(image)/2
         subthumb = image[horizontal*size:(horizontal+1)*size,vertical*size:(vertical+1)*size,:]
         features[quadrant*angleclasses:(quadrant+1)*angleclasses] = angleFeatures(subthumb, angleclasses, angleMagnitudeThreshold)  
+    return features
+    
+def mask_frequency(fshift, thumbsize, frequencyclasses, fc):
+    stepsize = (thumbsize/2)/frequencyclasses
+    m = copy.copy(fshift)
+    middle = (thumbsize/2)-1;
+    if fc != 0:
+        #set inside of ring to 0 (if fc=0 we pick the innermost block)
+        m[middle-stepsize*(fc-1):middle+stepsize*(fc)+1,middle-stepsize*(fc-1):middle+stepsize*(fc)+1] = 0
+    if fc != frequencyclasses-1:
+        #set outer ring to 0
+        m[0:middle-stepsize*(fc),:] = 0
+        m[middle+stepsize*(fc+1)+1:thumbsize,:] = 0
+        m[:,0:middle-stepsize*(fc),] = 0
+        m[:,middle+stepsize*(fc+1)+1:thumbsize] = 0
+    return m    
+    
+def frequencyFeatures(image, frequencyclasses = 5, subsect_v = 10, subsect_h=10, selectedclasses = [3,4]):
+    features = numpy.zeros([len(selectedclasses)*subsect_v*subsect_h])     #to save feature class frequencies
+    thumbsize = len(image)    
+    for subsection in range(subsect_v*subsect_h):
+        horizontal = subsection % subsect_h
+        vertical = math.floor(subsection/subsect_v)
+        h_size = thumbsize/subsect_h
+        v_size = thumbsize/subsect_v
+        subthumb = image[horizontal*h_size:(horizontal+1)*h_size,vertical*v_size:(vertical+1)*v_size]
+        fthumb = numpy.fft.fft2(subthumb)  #fourier transform
+        fshift = numpy.fft.fftshift(fthumb) #shift 0 frequency to center
+        index = 0
+        for fc in range(frequencyclasses):
+            if fc in selectedclasses:
+                m = mask_frequency(fshift,thumbsize,frequencyclasses,fc) #select frequency components of this class
+                f_ishift = numpy.fft.ifftshift(m)                        #inverse shift
+                img_back = numpy.fft.ifft2(f_ishift)                     #inverse transform
+                img_back = numpy.abs(img_back)
+                features[subsection*len(selectedclasses)+index] = sum(sum(img_back))/(thumbsize*thumbsize)   #last multiplication is so there is more weight on high frequencies (edges)
     return features
     
 #Combined features
