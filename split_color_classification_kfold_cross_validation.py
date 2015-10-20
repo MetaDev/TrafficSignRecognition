@@ -13,10 +13,7 @@ import numpy
 from scipy import misc
 from scipy import stats
 from sklearn import neighbors
-from sklearn import svm
-from sklearn import grid_search
-from sklearn import lda
-from sklearn import qda
+from sklearn import cross_validation
 
 def distance(a,b):
     return numpy.sum(numpy.square(numpy.add(a, numpy.multiply(b, -1))))
@@ -70,44 +67,13 @@ for i in range(amount):
 
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 10, shuffle = True)
+model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
+print(score)
+print(score.mean())
 
-print("Evaluating model with KFold")
-counter = 0
-errors  = numpy.zeros(len(kfold))
-wrongs = []
-for train_index, test_index in kfold:
-    print(counter)
-    trainFeatures = [features[i] for i in train_index]
-    trainClasses  = [classes[i] for i in train_index]
-    testFeatures  = [features[i] for i in test_index]
-    testClasses   = [classes[i] for i in test_index]
-    
-    #model = neighbors.KNeighborsClassifier(n_neighbors = 1)
-    model = svm.SVC(kernel = 'poly', degree = 7)
-    
-    model.fit(trainFeatures, trainClasses)
-    
-    predictedClasses = model.predict(testFeatures)
-    errors[counter-1] = errorRate(testClasses, predictedClasses)
-    for i in range(len(testClasses)):
-        if testClasses[i] != predictedClasses[i]:
-            wrongs.insert(0, (predictedClasses[i], testClasses[i]))
-    print(errors[counter-1])
-    counter = counter + 1
-    
-wrongDict = dict()
-for pred, actual in wrongs:
-    if actual in wrongDict:
-        wrongDict[actual].insert(0,pred)
-    else:
-        wrongDict[actual] = [pred]
-        
-import csv
-w = csv.writer(open("wrongs.csv", "w", newline = ''))
-for key, val in wrongDict.items():
-    row = val.copy()
-    row.insert(0,key)
-    w.writerow(row)
-    
-print("mean error ", errors.mean())
+predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
+wrongIndexes = numpy.nonzero(predictions != classes)
+wrongs = numpy.unique(numpy.concatenate((predictions[[wrongIndexes]], numpy.array(classes)[[wrongIndexes]])))
+
 print('\a')

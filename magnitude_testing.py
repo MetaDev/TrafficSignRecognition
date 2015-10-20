@@ -29,16 +29,12 @@ def magnitude(image, splits = 1):
             features[index + 1] = subMagnitude.std()
     return features
 
-def angleCount(image, angleThreshold = 0.01, magnitudeThreshold = 100):
+def angleCount(image, threshold = 10, angleThreshold = 0.01, magnitudeThreshold = 100):
     angles, magnitudes = operations.calculatePixelAngleAndMagnitude(image)
     barrier = magnitudes > magnitudeThreshold
     usableAngles = (angles[barrier] / angleThreshold).astype(int)
     _, counts = numpy.unique(usableAngles, return_counts = True)
-    if len(counts) == 0:
-        mean = 0
-    else:
-        mean = counts.mean()
-    return (counts > mean).sum()
+    return (counts > threshold).sum()
 
 images, classes = loader.loadTrainingAndClasses()
 
@@ -48,7 +44,7 @@ thumbs = list(map(lambda x: misc.imresize(x, (thumbsize, thumbsize)), images))
 features = numpy.zeros((0, 1))
 for i in range(len(thumbs)):
     if i % 100 == 0: print(i)
-    features = numpy.concatenate((features, [[angleCount(thumbs[i])]]))
+    features = numpy.concatenate((features, [[angleCount(thumbs[i], 10)]]))
 
 model = neighbors.KNeighborsClassifier(n_neighbors = 5)
 score = cross_validation.cross_val_score(model, features, classes, cv = 5)
