@@ -128,7 +128,7 @@ def mask_frequency(fshift, thumbsize, frequencyclasses, fc):
         m[:,middle+stepsize*(fc+1)+1:thumbsize] = 0
     return m    
     
-def frequencyFeatures(image, frequencyclasses = 5, subsect_v = 10, subsect_h=10, selectedclasses = [3,4]):
+def frequencyFeatures(image, frequencyclasses = 25, subsect_v = 10, subsect_h=10, selectedclasses = [22,23,24]):
     features = numpy.zeros([len(selectedclasses)*subsect_v*subsect_h])     #to save feature class frequencies
     thumbsize = len(image)    
     for subsection in range(subsect_v*subsect_h):
@@ -146,7 +146,7 @@ def frequencyFeatures(image, frequencyclasses = 5, subsect_v = 10, subsect_h=10,
                 f_ishift = numpy.fft.ifftshift(m)                        #inverse shift
                 img_back = numpy.fft.ifft2(f_ishift)                     #inverse transform
                 img_back = numpy.abs(img_back)
-                features[subsection*len(selectedclasses)+index] = sum(sum(img_back))/(thumbsize*thumbsize)   #last multiplication is so there is more weight on high frequencies (edges)
+                features[subsection*len(selectedclasses)+index] = sum(sum(img_back))/(subsect_h*subsect_v)   #last multiplication is so there is more weight on high frequencies (edges)
     return features
     
 #harald
