@@ -84,7 +84,7 @@ def frequencyFeatures(thumbs, frequencyclasses = 25, subsect_v = 10, subsect_h=1
 
 
 print("Loading images")
-images, classes = loader.loadTrainingAndClasses()
+images, classes = loader.loadProblematicImagesAndClasses()
 amount = len(images)
 
 print("Making thumbnails")

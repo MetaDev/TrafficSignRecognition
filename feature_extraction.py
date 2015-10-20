@@ -147,6 +147,7 @@ def frequencyFeatures(image, frequencyclasses = 25, subsect_v = 10, subsect_h=10
                 img_back = numpy.fft.ifft2(f_ishift)                     #inverse transform
                 img_back = numpy.abs(img_back)
                 features[subsection*len(selectedclasses)+index] = sum(sum(img_back))/(subsect_h*subsect_v)   #last multiplication is so there is more weight on high frequencies (edges)
+                index += 1
     return features
     
 #harald
@@ -221,3 +222,6 @@ def angleClasses(image, classAmount = 4, threshold = 100):
             else:
                 result[i,j] = -1
     return result
+    
+def rgb2gray(rgb):
+    return numpy.dot(rgb[...,:3],[0.299, 0.587, 0.144])

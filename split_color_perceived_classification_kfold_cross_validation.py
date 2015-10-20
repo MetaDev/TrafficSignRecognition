@@ -16,24 +16,33 @@ from sklearn import cross_validation
 
 print("Loading images")
 images, classes = loader.loadProblematicImagesAndClasses()
-#images, classes = loader.loadTrainingAndClasses()
+images, classes = loader.loadTrainingAndClasses()
 amount = len(images)
 
 print("Making thumbnails")
 
 thumbsize = 50
 thumbs = [misc.imresize(x,(thumbsize, thumbsize)) for x in images]
+grays = [extractor.rgb2gray(x) for x in thumbs]  
 
 print("Calculating features")
 #features = list(map(extractor.calculateNormalizedColorFeatures, images))
 splits = 5
-features = numpy.zeros([len(images), 100 + splits * splits * 3])
+features = numpy.zeros([len(images), 100 + splits * splits * 3 + 300])
 for i in range(amount):
-    print(i, "/", amount)
+    if(i%10 ==0):print(i, "/", amount)
     #features[i] = extractor.splitColorFeatures(thumbs[i],splits)
     harald = extractor.calculateDarktoBrightRatio(thumbs[i])
     rian = extractor.splitColorFeatures(thumbs[i], splits)
-    features[i] = numpy.append(harald, rian)
+    pieter = extractor.frequencyFeatures(grays[i])
+    
+    #screwing around with weights best so far: harald:8, rian:8, pieter:1
+    harald = numpy.dot(harald,4)
+    rian = numpy.dot(rian,3)
+    pieter = numpy.dot(pieter,0.3)
+    
+    temp = numpy.append(harald, rian)
+    features[i] = numpy.append(temp, pieter)
     
 #model = grid_search.GridSearchCV(svm.SVC(),{'kernel' : ['poly'], 'C' : [1, 10, 100, 1000], 'degree' : [4,7,10], 'shrinking' : [True, False]})    
 #model.fit(features, classes)    
