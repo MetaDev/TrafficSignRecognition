@@ -7,15 +7,18 @@ Created on Thu Oct 22 13:09:49 2015
 import numpy
 from sklearn import cross_validation
 
+limit = 10 ** -15
+
 def logloss(xtrain, ytrain, xtest, ytest, model):
     classes = numpy.unique(ytrain)
     model.fit(xtrain,ytrain)
-    probabilities =  model.predict_log_proba(xtest)
+    probabilities =  model.predict_proba(xtest)
     total = 0
     for i in range(len(ytest)):
         for j in range(len(classes)):
             if classes[j] == ytest[i]:
-                total += probabilities[i, j]
+                if(probabilities[i, j] < limit): probabilities[i, j] = limit
+                total += numpy.log(probabilities[i, j])
     return - total / len(ytest)
    
 def loglossKFold(x, y, model, n_folds = 8):

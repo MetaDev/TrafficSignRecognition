@@ -54,6 +54,7 @@ print("scores ", score)
 print("mean score ", score.mean())
 
 model = svm.SVC(kernel = 'linear', probability = True)
+#model = neighbors.KNeighborsClassifier(n_neighbors = 1)
 scores = score_calculation.loglossKFold(features, classes, model, 8)
 print("logloss scores ", scores)
 print("logloss score mean ", numpy.mean(scores))
