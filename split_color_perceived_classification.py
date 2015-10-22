@@ -28,24 +28,25 @@ testThumbs = list(map(lambda x: misc.imresize(x,(size,size)), testImages))
 print("Calculating features")
 #features = list(map(extractor.calculateNormalizedColorFeatures, images))
 splits = 5
-trainingFeatures = numpy.zeros([trainingAmount, splits * splits * 3 + 100])
-testFeatures = numpy.zeros([testAmount, splits * splits * 3 + 100])
+trainingFeatures = []
+testFeatures = []
 for i in range(trainingAmount):
     print(i, "/", trainingAmount)
-    harald = extractor.calculateDarktoBrightRatio(trainingThumbs[i])
-    rian = extractor.splitColorFeatures(trainingThumbs[i], splits)
-    trainingFeatures[i] = numpy.append(harald, rian)
+    harald = extractor.calculateDarktoBrightRatio(trainingThumbs[i])[1::4]
+    rian = extractor.splitColorFeatures(trainingThumbs[i], splits)[1::4]
+    trainingFeatures.append(numpy.append(harald, rian))
 for i in range(testAmount):
     print(i, "/", testAmount)
-    harald = extractor.calculateDarktoBrightRatio(testThumbs[i])
-    rian = extractor.splitColorFeatures(testThumbs[i], splits)
-    testFeatures[i] = numpy.append(harald, rian)
+    harald = extractor.calculateDarktoBrightRatio(testThumbs[i])[1::4]
+    rian = extractor.splitColorFeatures(testThumbs[i], splits)[1::4]
+    testFeatures.append(numpy.append(harald, rian))
     
 print("Predicting Testdata")
-model = neighbors.KNeighborsClassifier(n_neighbors = 1) #svm.SVC(kernel = 'linear', probability = True)
+#model = neighbors.KNeighborsClassifier(n_neighbors = 1) #svm.SVC(kernel = 'linear', probability = True)
+model = svm.SVC(kernel = 'linear', probability=True)
 model.fit(trainingFeatures, trainingClasses)
 
-"""with open('split_color_perceived_classification_1.csv', 'w', newline = '') as csvfile:
+with open('split_color_perceived_reduced_classification_.csv', 'w', newline = '') as csvfile:
     classes = numpy.unique(trainingClasses)
     fieldnames = numpy.insert(classes, 0, 'Id')
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -58,9 +59,9 @@ model.fit(trainingFeatures, trainingClasses)
         values = numpy.insert(values,0, int(i + 1))
         dictionary = dict(zip(labels, values))
         dictionary['Id'] = int(dictionary['Id'])
-        writer.writerow(dictionary)"""
+        writer.writerow(dictionary)
         
-testClasses = model.predict(testFeatures)
+"""testClasses = model.predict(testFeatures)
         
 errorRate = 0.02
 with open('split_color_perceived_classification_2.csv', 'w', newline = '') as csvfile:
@@ -76,5 +77,5 @@ with open('split_color_perceived_classification_2.csv', 'w', newline = '') as cs
                 values[c] = 1 - errorRate
             else:
                 values[c] = errorRate / (len(classes) - 1)
-        writer.writerow(values)
+        writer.writerow(values)"""
 print('\a')

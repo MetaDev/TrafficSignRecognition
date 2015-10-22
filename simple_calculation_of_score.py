@@ -6,7 +6,9 @@ Created on Tue Oct 20 20:18:33 2015
 """
 import numpy
 
-def score(classes, percent):
-    wrongPredictions = numpy.log10((1-percent) / (classes - 1))
-    rightPredictions = numpy.log10(percent)
-    return - (percent * rightPredictions + (1-percent) * wrongPredictions)
+def simpleScore(classes, percent, actual = -1):
+    if actual == -1: actual = percent
+    wrongPredictions = numpy.log((1-percent) / (classes - 1))
+    rightPredictions = numpy.log(percent)
+    return - (actual * rightPredictions + (1-actual) * wrongPredictions)
+    
