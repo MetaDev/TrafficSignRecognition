@@ -9,6 +9,8 @@ import math
 import scipy 
 from scipy import stats
 
+import score_calculation
+
 from skimage import exposure
 from sklearn import lda
 import data_loading as loader
@@ -26,11 +28,9 @@ from matplotlib import pyplot as plot
 #mode 1
 #special mode for traffic signs
 
-def calcPixelBrightness(r,g,b,mode):
-    if mode == 0:
-        return 0.299*math.pow(r,2)+0.587*math.pow(g,2) + 0.114*math.pow(b,2)
-    if mode == 1:
-        return math.sqrt(0.299*math.pow(r,2)+ 0.114*math.pow(b,2))
+def calcPixelBrightness(r,g,b,rWeight=0.299,gWeight=0.587,bWeight=0.114):
+    return rWeight*math.pow(r,2)+gWeight*math.pow(g,2) + bWeight*math.pow(b,2)
+   
 
 """more imporvements
 calculate average brightness of image to remove the lighting effect and calcualte brightness and darkness 
@@ -54,7 +54,7 @@ class Interpolation(Enum):
     cubic = 3
 #the white threshhold is propably more important as white is more susceptible to different lighting
 #Interpolation to use for re-sizing (‘nearest’, ‘bilinear’, ‘bicubic’ or ‘cubic’).
-def calculateDarktoBrightRatio(image,brightnessMode=0, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfBlocks=1, interpolation=2, trimBorderFraction=0):
+def calculateDarktoBrightRatio(image, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfBlocks=1, interpolation=2, trimBorderFraction=0):
 
   
     height = len(image)
@@ -140,7 +140,6 @@ thumbs = [resizeProper(x, 200) for x in images]
 
 print("Calculating features")
 nrOfBlocks=8
-brightnessMode=0
 brightThreshhold=0.8
 darkTreshhold=0.1
 interp=3
@@ -149,7 +148,7 @@ reducedFeatureRatio=1
 features = []
 for i in range(amount):
     #print(i, "/", amount)
-    ratio=calculateDarktoBrightRatio(thumbs[i],brightnessMode,brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
+    ratio=calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
     features.append(ratio)
   
 features=numpy.array(features)
@@ -157,9 +156,18 @@ features=numpy.array(features)
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
 model = svm.SVC(kernel='linear')
+
+
+print("K-fold prediction score")
 score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
 print(score)
 print(score.mean())
+
+print("K-fold log loss prediction score")
+model = svm.SVC(kernel='poly',degree=2,probability=True)
+scores = score_calculation.loglossKFold(features,classes,model,8)
+print(scores)
+print(numpy.mean(scores))
 
 predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
 wrongIndexes = numpy.nonzero(predictions != classes)
