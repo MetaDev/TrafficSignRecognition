@@ -21,6 +21,7 @@ from enum import Enum
 import sklearn.cross_validation as cv
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plot
+import feature_extraction
 
 #mode 0
 #brightness sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
@@ -79,7 +80,7 @@ def calculateDarktoBrightRatio(image, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfB
             g = image[i, j, 1]
             b = image[i, j, 2]
             #convert rgb to brightness
-            imageBrightness[height-i-1][j]= calcPixelBrightness(r,g,b,brightnessMode)
+            imageBrightness[height-i-1][j]= calcPixelBrightness(r,g,b)
            
            
     #normalise feature using its histogram
@@ -136,7 +137,7 @@ def resizeProper(image, maxPixels):
     width = int(ratio * height)
     return scipy.misc.imresize(image, (width, height))
     
-thumbs = [resizeProper(x, 200) for x in images]
+thumbs = numpy.array([resizeProper(x, 200) for x in images])
 
 print("Calculating features")
 nrOfBlocks=8
@@ -148,8 +149,10 @@ reducedFeatureRatio=1
 features = []
 for i in range(amount):
     #print(i, "/", amount)
-    ratio=calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
-    features.append(ratio)
+    #ratio = calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
+    color =  feature_extraction.splitColorFeatures(thumbs[i],5)
+    #feature=numpy.append(ratio,color)
+    features.append(color)
   
 features=numpy.array(features)
 
