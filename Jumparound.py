@@ -10,9 +10,10 @@ import scipy
 from scipy import stats
 
 from skimage import exposure
-
+from sklearn import lda
 import data_loading as loader
-from sklearn import neighbors
+from sklearn import svm
+
 from sklearn import cross_validation
 from enum import Enum
 import sklearn.cross_validation as cv
@@ -29,7 +30,7 @@ def calcPixelBrightness(r,g,b,mode):
     if mode == 0:
         return 0.299*math.pow(r,2)+0.587*math.pow(g,2) + 0.114*math.pow(b,2)
     if mode == 1:
-        return 0.299*math.pow(r,2)+ 0.114*math.pow(b,2)
+        return math.sqrt(0.299*math.pow(r,2)+ 0.114*math.pow(b,2))
 
 """more imporvements
 calculate average brightness of image to remove the lighting effect and calcualte brightness and darkness 
@@ -139,7 +140,7 @@ thumbs = [resizeProper(x, 200) for x in images]
 
 print("Calculating features")
 nrOfBlocks=8
-brightnessMode=1
+brightnessMode=0
 brightThreshhold=0.8
 darkTreshhold=0.1
 interp=3
@@ -147,7 +148,7 @@ border=0.17
 reducedFeatureRatio=1
 features = []
 for i in range(amount):
-    print(i, "/", amount)
+    #print(i, "/", amount)
     ratio=calculateDarktoBrightRatio(thumbs[i],brightnessMode,brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
     features.append(ratio)
   
@@ -155,7 +156,7 @@ features=numpy.array(features)
 
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
-model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+model = svm.SVC(kernel='linear')
 score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
 print(score)
 print(score.mean())
