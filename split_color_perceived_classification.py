@@ -31,14 +31,14 @@ splits = 5
 trainingFeatures = []
 testFeatures = []
 for i in range(trainingAmount):
-    print(i, "/", trainingAmount)
-    harald = extractor.calculateDarktoBrightRatio(trainingThumbs[i])[1::4]
-    rian = extractor.splitColorFeatures(trainingThumbs[i], splits)[1::4]
+    if(i%10 ==0):print(i, "/", trainingAmount)
+    harald = extractor.calculateDarktoBrightRatio(trainingThumbs[i])[0::4]
+    rian = extractor.splitColorFeatures(trainingThumbs[i], splits)[0::4]
     trainingFeatures.append(numpy.append(harald, rian))
 for i in range(testAmount):
-    print(i, "/", testAmount)
-    harald = extractor.calculateDarktoBrightRatio(testThumbs[i])[1::4]
-    rian = extractor.splitColorFeatures(testThumbs[i], splits)[1::4]
+    if(i%10 ==0):print(i, "/", testAmount)
+    harald = extractor.calculateDarktoBrightRatio(testThumbs[i])[0::4]
+    rian = extractor.splitColorFeatures(testThumbs[i], splits)[0::4]
     testFeatures.append(numpy.append(harald, rian))
     
 print("Predicting Testdata")
@@ -46,17 +46,17 @@ print("Predicting Testdata")
 model = svm.SVC(kernel = 'linear', probability=True)
 model.fit(trainingFeatures, trainingClasses)
 
-with open('split_color_perceived_reduced_classification_.csv', 'w', newline = '') as csvfile:
+with open('split_color_perceived_reduced_classification_2.csv', 'w', newline = '') as csvfile:
     classes = numpy.unique(trainingClasses)
     fieldnames = numpy.insert(classes, 0, 'Id')
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     writer.writeheader()
+    probabilities = model.predict_proba(testFeatures)
     for i in range(testAmount):
         labels = classes
         labels = numpy.insert(labels, 0, 'Id')
-        values = model.predict_proba(testFeatures[i])
-        values = numpy.insert(values,0, int(i + 1))
+        values = numpy.insert(probabilities[i],0, int(i + 1))
         dictionary = dict(zip(labels, values))
         dictionary['Id'] = int(dictionary['Id'])
         writer.writerow(dictionary)

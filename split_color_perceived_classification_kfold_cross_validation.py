@@ -16,6 +16,7 @@ from sklearn import lda
 from sklearn import qda
 from sklearn import svm
 from sklearn import cross_validation
+from sklearn import mixture
 import score_calculation
 
 print("Loading images")
@@ -35,8 +36,8 @@ features = []
 for i in range(amount):
     if(i%10 ==0):print(i, "/", amount)
     #features[i] = extractor.splitColorFeatures(thumbs[i],splits)
-    harald = extractor.calculateDarktoBrightRatio(thumbs[i])[1::4]
-    rian = extractor.splitColorFeatures(thumbs[i], splits)[1::4]
+    harald = extractor.calculateDarktoBrightRatio(thumbs[i])[0::4]
+    rian = extractor.splitColorFeatures(thumbs[i], splits)[0::4]
     features.append(numpy.append(harald, rian))
     
 #model = grid_search.GridSearchCV(svm.SVC(),{'kernel' : ['poly'], 'C' : [1, 10, 100, 1000], 'degree' : [4,7,10], 'shrinking' : [True, False]})    
@@ -57,7 +58,7 @@ model = svm.SVC(kernel = 'linear', probability = True)
 #model = neighbors.KNeighborsClassifier(n_neighbors = 1)
 scores = score_calculation.loglossKFold(features, classes, model, 8)
 print("logloss scores ", scores)
-print("logloss score mean ", numpy.mean(scores))
+print("logloss score mean ", numpy.mean(scores), " ", numpy.std(scores))
 
 #predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
 #wrongIndexes = numpy.nonzero(predictions != classes)
