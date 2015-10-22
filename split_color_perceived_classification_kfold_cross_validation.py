@@ -16,6 +16,7 @@ from sklearn import lda
 from sklearn import qda
 from sklearn import svm
 from sklearn import cross_validation
+import score_calculation
 
 print("Loading images")
 #images, classes = loader.loadProblematicImagesAndClasses()
@@ -44,13 +45,18 @@ for i in range(amount):
 #print('\a')
 
 print("Producing KFold indexes")
-kfold = cv.KFold(amount, n_folds = 2, shuffle = True)
+kfold = cv.KFold(amount, n_folds = 8, shuffle = True)
 #model = neighbors.KNeighborsClassifier(n_neighbors = 1)
 model = svm.SVC(kernel = 'linear')
 #model = qda.QDA()
 score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
-print(score)
-print(score.mean())
+print("scores ", score)
+print("mean score ", score.mean())
+
+model = svm.SVC(kernel = 'linear', probability = True)
+scores = score_calculation.loglossKFold(features, classes, model, 8)
+print("logloss scores ", scores)
+print("logloss score mean ", numpy.mean(scores))
 
 #predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
 #wrongIndexes = numpy.nonzero(predictions != classes)

@@ -18,6 +18,7 @@ from scipy import misc
 from scipy import stats
 from sklearn import neighbors
 from sklearn import svm
+from sklearn import lda
 from sklearn import cross_validation
 
 rotatedImage = ndimage.imread("train/rectangles_up/F59/00283_01126.png")
@@ -74,7 +75,8 @@ for i in range(amount):
     
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
-model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+#model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+model = lda.LDA()
 score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
 print(score)
 print(score.mean())
