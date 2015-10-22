@@ -8,6 +8,9 @@ import numpy
 import math
 import scipy 
 from scipy import stats
+
+from skimage import exposure
+
 import data_loading as loader
 from sklearn import neighbors
 from sklearn import cross_validation
@@ -45,23 +48,23 @@ class Interpolation(Enum):
     cubic = 3
 #the white threshhold is propably more important as white is more susceptible to different lighting
 #Interpolation to use for re-sizing (‘nearest’, ‘bilinear’, ‘bicubic’ or ‘cubic’).
-def calculateDarktoBrightRatio(image, brightThreshhold, darkThreshhold, nrOfBlocks=1, interpolation=2, trimBorderFraction=0):
+def calculateDarktoBrightRatio(image, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfBlocks=1, interpolation=2, trimBorderFraction=0):
 
   
     height = len(image)
     width = len(image[0]) 
+    #TODO trim corners, rarely in image there
     #trim borders of the image 
     image=image[height*(trimBorderFraction): height-height*(trimBorderFraction), width*(trimBorderFraction): width-width*(trimBorderFraction), :]
 
+   
+    
     height = len(image)
     width = len(image[0]) 
-    #TODO calculate brightness distribution
+    
+    imageBrightness = numpy.zeros((height,width))
     
     #first calculate brightness for each pixel than resize array
-
-    imageBrightness = numpy.zeros((height,width))
-    # a possible improvement would be to check if we are calculating the density inside the sign or not
-    # we want to ignore the environments influence on the density
     # TODO accelerate with numpy
     for i in range(height):
         for j in range(width):
@@ -72,13 +75,20 @@ def calculateDarktoBrightRatio(image, brightThreshhold, darkThreshhold, nrOfBloc
             #convert rgb to brightness
             imageBrightness[height-i-1][j]= calcPixelBrightness(r,g,b)
            
-    #TODO, filter, only count very dark and bright pixels (threshhold) 
-    #set everything to bright (1), dont consider pixels in the corners, ther'll rarely be a figure
            
+    #normalise feature using its histogram
+    imageBrightness=exposure.equalize_hist(imageBrightness)
+    
+    #TODO use edge detection (high difference in brightness) to calculate trim and to calculate the mask for the histogram only covering the sign and not environment
+    #imageBrightnessHist, imageBrightnessBinEdges = numpy.histogram(imageBrightness.flatten(),bins=nrOfBrightnessLevels,density=True)    
+    
+    #TODO, filter, only count very dark and bright pixels (threshhold) 
+  
+    #reduce resolution     
     #use scyppy image resize to create blocks   
     reducedImageBrightness=scipy.misc.imresize(imageBrightness,(nrOfBlocks,nrOfBlocks),Interpolation(interpolation).name)   
-    #reducedImageBrightness=scipy.ndimage.interpolation.zoom(imageBrightness,(nrOfBlocks/width,nrOfBlocks/height),order=interpolation)  
-    #flatten feature
+   
+    #flatten
     return reducedImageBrightness.flatten()
  
 def filterClassFromImages(images,classes,className):
@@ -123,11 +133,11 @@ def resizeProper(image, maxPixels):
 thumbs = [resizeProper(x, 200) for x in images]
 
 print("Calculating features")
-nrOfBlocks=10
+nrOfBlocks=8
 brightThreshhold=0.8
 darkTreshhold=0.1
-interp=1
-border=0.2
+interp=3
+border=0.17
 features = numpy.zeros((amount,nrOfBlocks*nrOfBlocks))
 for i in range(amount):
     print(i, "/", amount)
@@ -145,5 +155,6 @@ predictions = cross_validation.cross_val_predict(model, features, classes, cv = 
 wrongIndexes = numpy.nonzero(predictions != classes)
 uniqueWrongs, counts = numpy.unique(numpy.append(predictions[[wrongIndexes]], numpy.array(classes)[[wrongIndexes]]), return_counts = True)
 wrongs = uniqueWrongs[counts > 10]
+print(wrongs)
 
 print('\a')
