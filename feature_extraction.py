@@ -82,7 +82,7 @@ def splitColorFeatures(image, splits = 3):
     for i in range(splits):
         for j in range(splits):
             index = (i*splits + j) * 3
-            subImage = normalized[height/splits*i:height/splits*(i+1), width/splits*j:width/splits*(j+1), :]
+            subImage = normalized[width/splits*i:width/splits*(i+1), height/splits*j:height/splits*(j+1), :]
             subFeatures = calculateColorFeatures(subImage)
             features[index] = subFeatures[0]
             features[index+1] = subFeatures[1]
