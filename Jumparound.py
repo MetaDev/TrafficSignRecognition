@@ -19,12 +19,17 @@ import sklearn.cross_validation as cv
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plot
 
-
+#mode 0
 #brightness sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
 #source: http://alienryderflex.com/hsp.html
+#mode 1
+#special mode for traffic signs
 
-def calcPixelBrightness(r,g,b):
-    return 0.299*math.pow(r,2)+0.587*math.pow(g,2) + 0.114*math.pow(b,2)
+def calcPixelBrightness(r,g,b,mode):
+    if mode == 0:
+        return 0.299*math.pow(r,2)+0.587*math.pow(g,2) + 0.114*math.pow(b,2)
+    if mode == 1:
+        return 0.299*math.pow(r,2)+ 0.114*math.pow(b,2)
 
 """more imporvements
 calculate average brightness of image to remove the lighting effect and calcualte brightness and darkness 
@@ -48,7 +53,7 @@ class Interpolation(Enum):
     cubic = 3
 #the white threshhold is propably more important as white is more susceptible to different lighting
 #Interpolation to use for re-sizing (‘nearest’, ‘bilinear’, ‘bicubic’ or ‘cubic’).
-def calculateDarktoBrightRatio(image, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfBlocks=1, interpolation=2, trimBorderFraction=0):
+def calculateDarktoBrightRatio(image,brightnessMode=0, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfBlocks=1, interpolation=2, trimBorderFraction=0):
 
   
     height = len(image)
@@ -73,7 +78,7 @@ def calculateDarktoBrightRatio(image, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfB
             g = image[i, j, 1]
             b = image[i, j, 2]
             #convert rgb to brightness
-            imageBrightness[height-i-1][j]= calcPixelBrightness(r,g,b)
+            imageBrightness[height-i-1][j]= calcPixelBrightness(r,g,b,brightnessMode)
            
            
     #normalise feature using its histogram
@@ -134,15 +139,19 @@ thumbs = [resizeProper(x, 200) for x in images]
 
 print("Calculating features")
 nrOfBlocks=8
+brightnessMode=1
 brightThreshhold=0.8
 darkTreshhold=0.1
 interp=3
 border=0.17
-features = numpy.zeros((amount,nrOfBlocks*nrOfBlocks))
+reducedFeatureRatio=1
+features = []
 for i in range(amount):
     print(i, "/", amount)
-    features[i] = calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)
+    ratio=calculateDarktoBrightRatio(thumbs[i],brightnessMode,brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
+    features.append(ratio)
   
+features=numpy.array(features)
 
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
