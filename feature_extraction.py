@@ -13,6 +13,55 @@ import math
 import scipy
 from scipy import stats
 from enum import Enum
+from scipy import signal
+
+def normalizedColorFeatures(image):
+    normalized = op.normalizeImage(image)
+    reds = normalized[:,:,0].flatten()
+    greens = normalized[:,:,1].flatten()
+    blues = normalized[:,:,2].flatten()
+    return numpy.array([reds.mean(), greens.mean(), blues.mean(),
+                        numpy.std(reds), numpy.std(greens), numpy.std(blues),
+                        stats.skew(reds), stats.skew(greens), stats.skew(blues),
+                        stats.kurtosis(reds), stats.kurtosis(greens), stats.kurtosis(blues)])
+                        
+def normalizedColorDistances(image, r_steps = 2, g_steps = 2, b_steps = 2):
+    normalized = op.normalizeImage(image)
+    features = []
+    for r in range(r_steps):
+        for g in range(g_steps):
+            for b in range(b_steps):
+                color = numpy.array([r,g,b]) / (numpy.linalg.norm([r,g,b]) + 0.01) * 255
+                distances = numpy.linalg.norm(normalized - color, axis = 2)
+                features.append(distances.mean())
+                features.append(numpy.std(distances))
+    return numpy.array(features)
+
+def weightedAngleFeatures(image, classAmount = 3):
+    angles, magnitudes = op.calculatePixelAngleAndMagnitude(image)
+    concreteAngles = (angles + (angles < 0) * np.pi + np.pi/4) % np.pi
+    angleClasses = (concreteAngles / (np.pi / classAmount)).astype(int)
+    counted = numpy.zeros(classAmount)
+    for i in range(classAmount):
+        counted[i] = numpy.sum(numpy.multiply(angleClasses == i, magnitudes))
+    return counted
+
+verticalKernel = numpy.matrix([[-1,-1,-1],[0,0,0],[1,1,1]])
+horizontalKernel = numpy.matrix([[-1,0,1],[-1,0,1],[-1,0,1]])
+def pixelDifferences(image):
+    verticalR = signal.convolve2d(image[:,:,0], verticalKernel, boundary = 'symm')
+    verticalG = signal.convolve2d(image[:,:,1], verticalKernel, boundary = 'symm')
+    verticalB = signal.convolve2d(image[:,:,2], verticalKernel, boundary = 'symm')
+    
+    horizontalR = signal.convolve2d(image[:,:,0], horizontalKernel, boundary = 'symm')
+    horizontalG = signal.convolve2d(image[:,:,1], horizontalKernel, boundary = 'symm')
+    horizontalB = signal.convolve2d(image[:,:,2], horizontalKernel, boundary = 'symm')
+    return numpy.array([verticalR.mean(), numpy.std(verticalR), stats.skew(verticalR.flatten()), stats.kurtosis(verticalR.flatten()),
+                        verticalG.mean(), numpy.std(verticalG), stats.skew(verticalG.flatten()), stats.kurtosis(verticalG.flatten()),
+                        verticalB.mean(), numpy.std(verticalB), stats.skew(verticalB.flatten()), stats.kurtosis(verticalB.flatten()),
+                        horizontalR.mean(), numpy.std(horizontalR), stats.skew(horizontalR.flatten()), stats.kurtosis(horizontalR.flatten()),
+                        horizontalG.mean(), numpy.std(horizontalG), stats.skew(horizontalG.flatten()), stats.kurtosis(horizontalG.flatten()),
+                        horizontalB.mean(), numpy.std(horizontalB), stats.skew(horizontalB.flatten()), stats.kurtosis(horizontalB.flatten())])
 
 def calculateAngleFeatures(image, angleDetail = 4):
     height = len(image)
@@ -82,7 +131,7 @@ def splitColorFeatures(image, splits = 3):
     for i in range(splits):
         for j in range(splits):
             index = (i*splits + j) * 3
-            subImage = normalized[width/splits*i:width/splits*(i+1), height/splits*j:height/splits*(j+1), :]
+            subImage = normalized[height/splits*i:height/splits*(i+1), width/splits*j:width/splits*(j+1), :]
             subFeatures = calculateColorFeatures(subImage)
             features[index] = subFeatures[0]
             features[index+1] = subFeatures[1]

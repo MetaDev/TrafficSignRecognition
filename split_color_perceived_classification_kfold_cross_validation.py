@@ -18,17 +18,18 @@ from sklearn import svm
 from sklearn import cross_validation
 from sklearn import mixture
 import score_calculation
+import scipy
 
 print("Loading images")
 #images, classes = loader.loadProblematicImagesAndClasses()
-images, classes = loader.loadTrainingAndClasses()
+images, classes = loader.loadUniqueTrainingAndClasses()
 amount = len(images)
 
 print("Making thumbnails")
 
 thumbsize = 50
 thumbs = [misc.imresize(x,(thumbsize, thumbsize)) for x in images]
-
+print("Making thumbnails")
 print("Calculating features")
 #features = list(map(extractor.calculateNormalizedColorFeatures, images))
 splits = 5
@@ -36,8 +37,8 @@ features = []
 for i in range(amount):
     if(i%10 ==0):print(i, "/", amount)
     #features[i] = extractor.splitColorFeatures(thumbs[i],splits)
-    harald = extractor.calculateDarktoBrightRatio(thumbs[i])[0::4]
-    rian = extractor.splitColorFeatures(thumbs[i], splits)[0::4]
+    harald = extractor.calculateDarktoBrightRatio(thumbs[i])
+    rian = extractor.splitColorFeatures(thumbs[i], splits)
     features.append(numpy.append(harald, rian))
     
 #model = grid_search.GridSearchCV(svm.SVC(),{'kernel' : ['poly'], 'C' : [1, 10, 100, 1000], 'degree' : [4,7,10], 'shrinking' : [True, False]})    
@@ -46,17 +47,18 @@ for i in range(amount):
 #print('\a')
 
 print("Producing KFold indexes")
-kfold = cv.KFold(amount, n_folds = 8, shuffle = True)
-#model = neighbors.KNeighborsClassifier(n_neighbors = 1)
-model = svm.SVC(kernel = 'linear')
+kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
+model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+#model = svm.SVC(kernel = 'linear')
 #model = qda.QDA()
 score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
 print("scores ", score)
 print("mean score ", score.mean())
 
-model = svm.SVC(kernel = 'linear', probability = True)
+#model = svm.SVC(kernel = 'linear', probability = True)
+model = svm.SVC()
 #model = neighbors.KNeighborsClassifier(n_neighbors = 1)
-scores = score_calculation.loglossKFold(features, classes, model, 8)
+scores = score_calculation.loglossKFold(features, classes, model, 5)
 print("logloss scores ", scores)
 print("logloss score mean ", numpy.mean(scores), " ", numpy.std(scores))
 
