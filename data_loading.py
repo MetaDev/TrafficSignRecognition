@@ -22,7 +22,7 @@ def loadTrainingImages():
     
 def loadTrainingAndClasses():
     imagePaths = glob("train/*/*/*.png")
-    return [ndimage.imread(x) for x in imagePaths], [Path(x).parent.name for x in imagePaths]
+    return numpy.array([ndimage.imread(x) for x in imagePaths]), numpy.array([Path(x).parent.name for x in imagePaths])
     
 def loadImagesPoleNumbersAndClasses():
     imagePaths = glob("train/*/*/*.png")

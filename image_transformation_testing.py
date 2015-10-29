@@ -15,12 +15,12 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 import numpy
 
 
-wantedClasses = 5
+wantedClasses = 10
 wantedImages = 5
 
-numpy.random.seed(123)
+numpy.random.seed(1234)
 
-images, classes = loader.loadUniqueTrainingAndClasses()
+images, classes = loader.loadTrainingAndClasses()
 
 classAmount = len(numpy.unique(classes))
 
@@ -28,11 +28,12 @@ relevantClasses = numpy.unique(classes)[[numpy.random.permutation(range(classAmo
 relevantImages = numpy.array(list(map(lambda c: images[classes == c][0:wantedImages], relevantClasses)))
 
 def transform(image):
-    resized = ndimage.imres
-    return op.normalizeImage(image)
+    resized = misc.imresize(image, (50,50))
+    return op.normalizeImage(resized)
+    #return misc.imresize(image, (50,50))
 
 imagePlot = plot.figure()
 for i in range(wantedClasses):
     for j in range(len(relevantImages[i])):
-        singlePlot = imagePlot.add_subplot(wantedClasses, wantedImages, i + j*wantedClasses)
-        singlePlot.imshow(transform(relevantImages[i][j]))
+        singlePlot = imagePlot.add_subplot(wantedClasses, wantedImages, 1 + i*wantedImages + j)
+        singlePlot.imshow(transform(relevantImages[i,j]))
