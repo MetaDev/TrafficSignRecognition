@@ -22,6 +22,7 @@ import sklearn.cross_validation as cv
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plot
 import feature_extraction
+import image_operations
 
 #mode 0
 #brightness sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
@@ -47,7 +48,13 @@ visualise this
 use image resize to calculate blocks
 
 """
+def calcEdgeSum(image):
+    angle, magn = image_operations.calculatePixelAngleAndMagnitude(image)
+    print(angle)
+    plot.imshow(angle)
 
+    
+    
 class Interpolation(Enum):
     nearest = 0
     bilinear = 1
@@ -107,75 +114,56 @@ images, classes = loader.loadTrainingAndClasses()
 
 amount = len(images)
 
-"""
-print("Plot feature")
-plot.close("all")
-nrOfBlocks=8
-brightThreshhold=0.8
-darkTreshhold=0.2
-classA = filterClassFromImages(images,classes,"B1")
-classB = filterClassFromImages(images,classes,"B3")
 
-feature = calculateDarktoBrightRatio(classA[0],brightThreshhold,darkTreshhold,nrOfBlocks)
-fig, (ax1, ax2) = plot.subplots(1,2)
-
-imgplot = ax1.pcolor(feature)
-imgplot = ax2.imshow(classA[0])
-feature1 = calculateDarktoBrightRatio(classB[1],brightThreshhold,darkTreshhold,nrOfBlocks)
-
-fig1, (ax11, ax12) = plot.subplots(1,2)
-imgplot = ax11.pcolor(feature1)
-plot.colorbar(imgplot)
-imgplot = ax12.imshow(classB[1])
-plot.show()
-
-"""
 print("Making thumbnails")
 
-    
+
 size=50
 thumbs = [scipy.misc.imresize(img, (size, size)) for img in images]
 
-print("Calculating features")
-nrOfBlocks=8
-brightThreshhold=0.8
-darkTreshhold=0.1
-interp=3
-border=0.17
-reducedFeatureRatio=1
-features = []
-for i in range(amount):
-    #print(i, "/", amount)
-    ratio = calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
-    color =  feature_extraction.splitColorFeatures(thumbs[i],5)
-    feature=numpy.append(ratio,color)
-    features.append(feature)
-  
-features=numpy.array(features)
-
-print("Producing KFold indexes")
-kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
-model = svm.SVC(kernel='linear')
-
-
-print("K-fold prediction score")
-score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
-print(score)
-print(score.mean())
-
-print("K-fold log loss prediction score")
-model = svm.SVC(kernel='poly',degree=2,probability=True)
-scores = score_calculation.loglossKFold(features,classes,model,8)
-print(scores)
-print(numpy.mean(scores),' ' ,numpy.std(scores))
-
-predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
-wrongIndexes = numpy.nonzero(predictions != classes)
-uniqueWrongs, counts = numpy.unique(numpy.append(predictions[[wrongIndexes]], numpy.array(classes)[[wrongIndexes]]), return_counts = True)
-print('average misclassifications, std misclassifications')
-print(numpy.mean(uniqueWrongs),' ' ,numpy.std(uniqueWrongs))
-print('Classes with more than 5 misclassifications')
-wrongs = uniqueWrongs[counts > 5]
-print(wrongs)
-
-print('\a')
+calcEdgeSum(thumbs[0])
+plot.imshow(thumbs[0])
+#print("Calculating features")
+#nrOfBlocks=8
+#brightThreshhold=0.8
+#darkTreshhold=0.1
+#interp=3
+#border=0.17
+#reducedFeatureRatio=1
+#features = []
+#for i in range(amount):
+#    #print(i, "/", amount)
+#    #ratio = calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
+#    #color =  feature_extraction.splitColorFeatures(thumbs[i],5)
+#    
+#    feature=numpy.append(ratio,color)
+#    features.append(feature)
+#  
+#features=numpy.array(features)
+#
+#print("Producing KFold indexes")
+#kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
+#model = svm.SVC(kernel='linear')
+#
+#
+#print("K-fold prediction score")
+#score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
+#print(score)
+#print(score.mean())
+#
+#print("K-fold log loss prediction score")
+#model = svm.SVC(kernel='poly',degree=2,probability=True)
+#scores = score_calculation.loglossKFold(features,classes,model,8)
+#print(scores)
+#print(numpy.mean(scores),' ' ,numpy.std(scores))
+#
+#predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
+#wrongIndexes = numpy.nonzero(predictions != classes)
+#uniqueWrongs, counts = numpy.unique(numpy.append(predictions[[wrongIndexes]], numpy.array(classes)[[wrongIndexes]]), return_counts = True)
+#print('average misclassifications, std misclassifications')
+#print(numpy.mean(uniqueWrongs),' ' ,numpy.std(uniqueWrongs))
+#print('Classes with more than 5 misclassifications')
+#wrongs = uniqueWrongs[counts > 5]
+#print(wrongs)
+#
+#print('\a')
