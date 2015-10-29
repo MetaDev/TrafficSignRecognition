@@ -131,13 +131,10 @@ plot.show()
 
 """
 print("Making thumbnails")
-def resizeProper(image, maxPixels):
-    ratio = len(image) / len(image[0])
-    height = int(numpy.sqrt(maxPixels / ratio))
-    width = int(ratio * height)
-    return scipy.misc.imresize(image, (width, height))
+
     
-thumbs = numpy.array([resizeProper(x, 200) for x in images])
+size=50
+thumbs = [scipy.misc.imresize(img, (size, size)) for img in images]
 
 print("Calculating features")
 nrOfBlocks=8
@@ -149,10 +146,10 @@ reducedFeatureRatio=1
 features = []
 for i in range(amount):
     #print(i, "/", amount)
-    #ratio = calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
+    ratio = calculateDarktoBrightRatio(thumbs[i],brightThreshhold,darkTreshhold,nrOfBlocks,interpolation=interp,trimBorderFraction=border)[1::reducedFeatureRatio]
     color =  feature_extraction.splitColorFeatures(thumbs[i],5)
-    #feature=numpy.append(ratio,color)
-    features.append(color)
+    feature=numpy.append(ratio,color)
+    features.append(feature)
   
 features=numpy.array(features)
 
@@ -170,12 +167,15 @@ print("K-fold log loss prediction score")
 model = svm.SVC(kernel='poly',degree=2,probability=True)
 scores = score_calculation.loglossKFold(features,classes,model,8)
 print(scores)
-print(numpy.mean(scores))
+print(numpy.mean(scores),' ' ,numpy.std(scores))
 
 predictions = cross_validation.cross_val_predict(model, features, classes, cv = kfold)
 wrongIndexes = numpy.nonzero(predictions != classes)
 uniqueWrongs, counts = numpy.unique(numpy.append(predictions[[wrongIndexes]], numpy.array(classes)[[wrongIndexes]]), return_counts = True)
-wrongs = uniqueWrongs[counts > 10]
+print('average misclassifications, std misclassifications')
+print(numpy.mean(uniqueWrongs),' ' ,numpy.std(uniqueWrongs))
+print('Classes with more than 5 misclassifications')
+wrongs = uniqueWrongs[counts > 5]
 print(wrongs)
 
 print('\a')
