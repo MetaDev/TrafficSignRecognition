@@ -24,11 +24,11 @@ thumbs = [misc.imresize(x,(thumbsize, thumbsize)) for x in images]
 features = []
 for i in range(amount):
     if(i%10 ==0):print(i, "/", amount)
-    colors = extractor.normalizedColorFeatures(thumbs[i][5:45,5:45,:])
-    #angles = extractor.weightedAngleFeatures(thumbs[i][5:45,5:45,:], 11)
+    #colors = extractor.normalizedColorFeatures(thumbs[i][5:45,5:45,:])
+    angles = extractor.weightedAngleFeatures(thumbs[i][5:45,5:45,:], 11)
     #differences = extractor.pixelDifferences(thumbs[i][15:45,15:45,:])
     #feature = numpy.concatenate((colors, angles, differences))
-    features.append(colors)
+    features.append(angles)
 
 kfold = cv.KFold(amount, n_folds = 4, shuffle = True)
 #model = neighbors.KNeighborsClassifier(n_neighbors = 1)
