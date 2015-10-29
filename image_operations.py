@@ -4,10 +4,11 @@ Created on Fri Oct 16 21:51:11 2015
 
 @author: Rian
 """
-
+import sys
 import numpy
 from scipy import signal
 from skimage import exposure
+from matplotlib import pyplot as plot
 
 def normalizeImage(image):
     reds = image[:,:,0].astype(float)
@@ -63,3 +64,125 @@ def calculatePixelAngleAndMagnitude(image):
     magnitude = numpy.vectorize(lambda x,y: numpy.sqrt(x**2 + y**2))(verticalDifference, horizontalDifference)    
      
     return (angle, magnitude)
+    
+    
+def kMeanColors(image,K=4):
+    
+    max_iterations = 50    
+    
+    difference = 1
+    iterations = 0
+    
+    rows = len(image)
+    cols = len(image[0])
+    
+    N = rows*cols #dit is het aantal pixels in de thumbnail
+    S = len(image[0][0]) #dit is in principe 3 (voor rgb), maar ge weet nooit
+    
+    x = numpy.reshape(image,(N,S))
+
+    mu = numpy.zeros((K,S))
+    for k in range(K):
+        row = numpy.random.randint(0,rows)
+        col = numpy.random.randint(0,cols)
+        mu[k] = image[row][col]
+      
+    
+    previous = sys.maxsize
+    
+    r = calcR(mu,x)
+    
+    while difference>0 and iterations < max_iterations:
+        print("iteration:",iterations)
+        mu = calcMu(r,x)        
+        r = calcR(mu,x)
+        current = objectiveFunction(mu,r,x)
+        #print("current",current)
+        difference = previous - current
+        print("current",current)
+        previous = current
+        iterations += 1
+
+        result = numpy.zeros((rows,cols,S))    
+    
+        for row in range(rows):
+            for col in range(cols):
+                for k in range(K):
+                    if r[row*cols+col][k]:
+                        result[row][col] = mu[k]    
+        plot.imshow(result.astype(int))
+    
+    return result
+    
+    
+def calcMu(r,x):
+    N = len(x)
+    S = len(x[0])
+    K = len(r[0])
+    mu = numpy.zeros((K,S))
+    for k in range(K):
+        teller = numpy.zeros(3)
+        noemer = 0
+        for n in range(N):
+            for s in range(S):
+                teller[s] = teller[s] + x[n][s]*r[n][k]
+            noemer = noemer + r[n][k]
+        print("teller",teller)
+        print("noemer",noemer)
+        mu[k] = numpy.array(teller)/noemer
+    print("mu",mu)
+    return mu
+    
+def calcR(mu,x):
+    K = len(mu)
+    N = len(x)
+    r = numpy.zeros((N,K))
+    for n in range(N):
+        index = -1
+        D_min = 0
+        D = 0
+        for k in range(K):
+            #print("x",x[n])
+            #print("mu",mu[k])
+            sub = numpy.subtract(x[n],mu[k])
+            
+            sub = numpy.square(sub)
+            D = numpy.sum(sub)
+            
+            if index == -1 or D < D_min:
+                D_min = D
+                index = k
+        r[n][index] = 1
+    return r
+            
+def objectiveFunction(mu,r,x):
+    K = len(mu)
+    N = len(x)
+    S = len(x[0])
+    J = 0
+    for n in range(N):
+        for k in range(K):
+            #print("xn (3)",x[n])
+            #print("mu (3)",mu[k])
+            sub = numpy.subtract(x[n],mu[k])
+            
+            sub = numpy.square(sub)
+            dist = numpy.sum(sub)
+            #print("dist:",dist)
+            dist = dist*r[n][k]
+            J += dist
+    return J
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
