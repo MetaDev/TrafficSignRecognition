@@ -15,15 +15,34 @@ from scipy import stats
 from enum import Enum
 from scipy import signal
 
-def normalizedColorFeatures(image):
-    normalized = op.normalizeImage(image)
-    reds = normalized[:,:,0].flatten()
-    greens = normalized[:,:,1].flatten()
-    blues = normalized[:,:,2].flatten()
-    return numpy.array([reds.mean(), greens.mean(), blues.mean(),
-                        numpy.std(reds), numpy.std(greens), numpy.std(blues),
-                        stats.skew(reds), stats.skew(greens), stats.skew(blues),
-                        stats.kurtosis(reds), stats.kurtosis(greens), stats.kurtosis(blues)])
+def split_image_features(feature, splits, image):
+    features = []
+    width = len(image)
+    height = len(image[0])
+    for i in range(splits):
+        for j in range(splits):
+            subImage = image[height/splits*i:height/splits*(i+1), width/splits*j:width/splits*(j+1), :]
+            subFeatures = feature(subImage)
+            features.append(subFeatures)
+    return numpy.array(features).flatten()
+
+def color_features(image, mean = True, std = False, skew = False, kurtosis = False):
+    reds   = image[:,:,0].flatten()
+    greens = image[:,:,1].flatten()
+    blues  = image[:,:,2].flatten()
+    features = numpy.array([])
+    if mean:
+        features = numpy.append(features, [reds.mean(), greens.mean(), blues.mean()])
+    if std:
+        features = numpy.append(features, [numpy.std(reds), numpy.std(greens), numpy.std(blues)])
+    if skew:
+        features = numpy.append(features, [stats.skew(reds), stats.skew(greens), stats.skew(blues)])
+    if kurtosis:
+        features = numpy.append(features, [stats.kurtosis(reds), stats.kurtosis(greens), stats.kurtosis(blues)])
+    return features
+
+def normalizedColorFeatures(image, mean = True, std = True, skew = True, kurtosis = True):
+    return color_features(op.normalizeImage(image), mean, std, skew, kurtosis)
                         
 def normalizedColorDistances(image, r_steps = 2, g_steps = 2, b_steps = 2):
     normalized = op.normalizeImage(image)

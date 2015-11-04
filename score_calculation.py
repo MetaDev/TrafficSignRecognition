@@ -15,14 +15,21 @@ def logloss(xtrain, ytrain, xtest, ytest, model):
     probabilities =  model.predict_proba(xtest)
     total = 0
     for i in range(len(ytest)):
+        found = False
         for j in range(len(classes)):
             if classes[j] == ytest[i]:
+                found = True
                 if(probabilities[i, j] < limit): probabilities[i, j] = limit
                 total += numpy.log(probabilities[i, j])
+        if not found:
+            total += numpy.log(limit)
     return - total / len(ytest)
    
-def loglossKFold(x, y, model, n_folds = 8):
-    kfold = cross_validation.KFold(len(x), n_folds = n_folds, shuffle = True)
+def loglossKFold(x, y, model, n_folds = 8, given_kfold = False):
+    if given_kfold:
+        kfold = n_folds
+    else:
+        kfold = cross_validation.KFold(len(x), n_folds = n_folds, shuffle = True)
     scores = []
     for train_index, test_index in kfold:
         trainFeatures = [x[i] for i in train_index]
