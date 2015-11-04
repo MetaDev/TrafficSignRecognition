@@ -17,7 +17,7 @@ images, classes = loader.loadUniqueTrainingAndClasses()
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0.10, 50), images)
 print("normalizing...")
-normalized = util.loading_map(lambda x : operations.normalizeImage(x), resized)
+normalized = util.loading_map(operations.normalizeImage, resized)
 
 #feature extraction
 print("color features...")
@@ -25,7 +25,7 @@ color_features = util.loading_map(extraction.color_features, resized)
 print("normalized color features...")
 normalized_color_features = util.loading_map(extraction.color_features, normalized)
 print("split normalized color features...")
-split_normalized_color_features = util.loading_map(lambda x: extraction.split_image_features(extraction.color_features, 5, x), normalized)
+split_normalized_color_features = util.loading_map(lambda x: extraction.split_image_features(extraction.color_features, 3, x), normalized)
 
 #model evaluation
 print("Evaluating color features")

@@ -13,13 +13,13 @@ import score_calculation
 def validate_feature_linear(features, classes, n_folds = 5, print_folds = True):
     amount = len(features)
     kfold = cv.KFold(amount, n_folds = n_folds, shuffle = True)
-    model = linear_model.LogisticRegression()
+    model = linear_model.LogisticRegression(class_weight='auto')
     score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
     print("absolute scores")
     if print_folds: print("\tfolds:", score)
     print("\tmean:", score.mean(), "std:", numpy.std(score))
 
-    model = linear_model.LogisticRegression()
+    model = linear_model.LogisticRegression(class_weight='auto')
     scores = score_calculation.loglossKFold(features, classes, model, kfold, given_kfold = True)
     print("logloss scores")
     if print_folds: print("\tfolds",scores)
