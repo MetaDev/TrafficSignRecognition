@@ -12,16 +12,17 @@ import data_loading as loader
 import util
 import numpy
 import csv_output
+from sklearn import lda
 
 #preloading
 print("loading data...")
-images, classes = loader.loadTrainingAndClasses()
+images, classes = loader.loadUniqueTrainingAndClasses()
 amount = len(images)
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, 50), images)
 
 #feature extraction
-print("split normalized color features...")
+print("split color features...")
 split_color_features            = util.loading_map(lambda x: extraction.split_image_features(extraction.color_features, 3, x), resized)
 
 n_folds = 8
@@ -35,4 +36,5 @@ test_data = loader.loadTest()
 test_resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, 50), test_data)
 test_features = util.loading_map(lambda x: extraction.split_image_features(extraction.color_features, 3, x), test_resized)
 
-csv_output.generate(split_color_features, classes, test_features, "lolwut.csv")
+model = lda.LDA()
+csv_output.generate(split_color_features, classes, test_features, model, "lolwut.csv")

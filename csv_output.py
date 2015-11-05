@@ -8,12 +8,12 @@ import numpy
 import csv
 
 def generate(x_train, y_train, x_test, model, csv_file_name):
-    with open('split_color_perceived_reduced_classification_2.csv', 'w', newline = '') as csvfile:
+    with open(csv_file_name, 'w', newline = '') as csvfile:
         classes = numpy.unique(y_train)
         fieldnames = numpy.insert(classes, 0, 'Id')
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
         writer.writeheader()
+        model.fit(x_train, y_train)
         probabilities = model.predict_proba(x_test)
         for i in range(len(x_test)):
             labels = classes
