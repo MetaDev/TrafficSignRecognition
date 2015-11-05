@@ -22,7 +22,7 @@ import scipy
 
 print("Loading images")
 #images, classes = loader.loadProblematicImagesAndClasses()
-images, classes = loader.loadUniqueTrainingAndClasses()
+images, classes = loader.loadTrainingAndClasses()
 amount = len(images)
 
 print("Making thumbnails")
@@ -48,7 +48,7 @@ for i in range(amount):
 
 print("Producing KFold indexes")
 kfold = cv.KFold(amount, n_folds = 5, shuffle = True)
-model = neighbors.KNeighborsClassifier(n_neighbors = 1)
+model = lda.LDA()
 #model = svm.SVC(kernel = 'linear')
 #model = qda.QDA()
 score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
@@ -56,7 +56,7 @@ print("scores ", score)
 print("mean score ", score.mean())
 
 #model = svm.SVC(kernel = 'linear', probability = True)
-model = svm.SVC()
+model = lda.LDA()
 #model = neighbors.KNeighborsClassifier(n_neighbors = 1)
 scores = score_calculation.loglossKFold(features, classes, model, 5)
 print("logloss scores ", scores)
