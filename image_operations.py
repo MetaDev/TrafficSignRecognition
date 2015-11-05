@@ -7,8 +7,16 @@ Created on Fri Oct 16 21:51:11 2015
 import sys
 import numpy
 from scipy import signal
+from scipy import misc
 from skimage import exposure
 from matplotlib import pyplot as plot
+
+def cropAndResize(image, crop_percentage, size):
+    big_size = int(size * (1 + 2*crop_percentage))
+    crop_size = int(crop_percentage * size)
+    resized = misc.imresize(image, (big_size, big_size), interp = 'nearest')
+    cropped = resized[crop_size : crop_size + size, crop_size : crop_size + size, :]
+    return cropped
 
 def normalizeImage(image):
     reds = image[:,:,0].astype(float)
