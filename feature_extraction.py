@@ -177,7 +177,7 @@ def mask_frequency(fshift, thumbsize, frequencyclasses, fc):
         m[:,middle+stepsize*(fc+1)+1:thumbsize] = 0
     return m    
     
-def frequencyFeatures(image, frequencyclasses = 25, subsect_v = 10, subsect_h=10, selectedclasses = [22,23,24]):
+def frequencyFeatures(image, frequencyclasses = 25, subsect_v = 4, subsect_h=4, selectedclasses = [22,23,24]):
     features = numpy.zeros([len(selectedclasses)*subsect_v*subsect_h])     #to save feature class frequencies
     thumbsize = len(image)    
     for subsection in range(subsect_v*subsect_h):
