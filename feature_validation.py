@@ -14,7 +14,7 @@ def validate_feature_linear(features, classes, n_folds = 5, print_folds = True, 
     amount = len(features)
     kfold = cv.KFold(amount, n_folds = n_folds, shuffle = True)
     model = lda.LDA()
-    score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
+    if print_absolute: score = cross_validation.cross_val_score(model, features, classes, cv=kfold)
     if print_absolute: print("absolute scores")
     if print_folds: print("\tfolds:", score)
     if print_absolute: print("\tmean:", score.mean(), "std:", numpy.std(score))
