@@ -24,7 +24,7 @@ def loadTrainingAndClasses():
     imagePaths = glob("train/*/*/*.png")
     return numpy.array([ndimage.imread(x) for x in imagePaths]), numpy.array([Path(x).parent.name for x in imagePaths])
     
-def loadImagesPoleNumbersAndClasses():
+def loadTrainingImagesPoleNumbersAndClasses():
     imagePaths = glob("train/*/*/*.png")
     images = [ndimage.imread(x) for x in imagePaths]
     poleNumbers = [Path(x).name.split("_")[0] for x in imagePaths]
@@ -32,7 +32,7 @@ def loadImagesPoleNumbersAndClasses():
     return images, poleNumbers, classes
     
 def loadUniqueTrainingAndClasses():
-    images, poleNumbers, classes = loadImagesPoleNumbersAndClasses()
+    images, poleNumbers, classes = loadTrainingImagesPoleNumbersAndClasses()
     _, indexes = numpy.unique(poleNumbers, return_index = True)
     return numpy.array(images)[indexes], numpy.array(classes)[indexes]
     
