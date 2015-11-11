@@ -25,7 +25,7 @@ import feature_extraction
 import image_operations
 from skimage.feature import hog
 from skimage import data, color, exposure
-
+from pybrain.structure import FeedForwardNetwork
 
 #mode 0
 #brightness sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
@@ -105,7 +105,7 @@ def filterClassFromImages(images,classes,className):
             
 print("Loading images")
 #images, classes = loader.loadProblematicImagesAndClasses()
-images, classes = loader.loadTrainingAndClasses()
+images, classes = loader.loadUniqueTrainingAndClasses()
 
 amount = len(images)
 
@@ -130,6 +130,7 @@ features=numpy.array(features)
 
 #reduce feature dimensionality
 nr_of_features=25
+#LDA gives best results but warning: Variables are collinear
 reduction_type=1
 if(reduction_type==0):
     # Principal Components
