@@ -47,10 +47,18 @@ def calcPixelBrightness(r,g,b,rWeight=0.299,gWeight=0.587,bWeight=0.114):
 #    img = cv2.warpAffine(img,M,(SZ, SZ),flags=affine_flags)
 #    return img
 
-def calcNewFeature(image):
+def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2):
+    #image should be resized to square
    imageGray = color.rgb2gray(image)
-   fd, hog_image = hog(imageGray, orientations=8, pixels_per_cell=(8, 8),cells_per_block=(1, 1), visualise=True)
-   return numpy.array(hog_image).flatten()
+   #normalize
+   imageGray=exposure.equalize_hist(imageGray)
+   
+   height = len(image)
+   width = len(image[0]) 
+   ppc=(height/nr_of_cells_per_image,width/nr_of_cells_per_image)
+   cpb=(nr_of_cells_per_block, nr_of_cells_per_block)
+   fd = hog(imageGray, orientations=orient, pixels_per_cell=ppc,cells_per_block=cpb)
+   return numpy.array(fd).flatten()
 
 
 class Interpolation(Enum):
@@ -60,14 +68,17 @@ class Interpolation(Enum):
     cubic = 3
 #the white threshhold is propably more important as white is more susceptible to different lighting
 #Interpolation to use for re-sizing (‘nearest’, ‘bilinear’, ‘bicubic’ or ‘cubic’).
-def calculateDarktoBrightRatio(image, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfBlocks=1, interpolation=2, trimBorderFraction=0):
+def calculateDarktoBrightRatio(image, nrOfBlocks=6, interpolation=2, trimBorderFraction=0.1):
 
   
     height = len(image)
     width = len(image[0]) 
     #trim borders of the image 
+    image=image[height*(trimBorderFraction): height-height*(trimBorderFraction), width*(trimBorderFraction): width-width*(trimBorderFraction), :]
+
     height = len(image)
     width = len(image[0]) 
+    
     imageBrightness = numpy.zeros((height,width))
     #first calculate brightness for each pixel than resize array
     for i in range(height):
@@ -86,8 +97,8 @@ def calculateDarktoBrightRatio(image, maxDarkLevel=0.1,minBrightLevel=0.9, nrOfB
     #use scyppy image resize to create blocks   
     reducedImageBrightness=scipy.misc.imresize(imageBrightness,(nrOfBlocks,nrOfBlocks),Interpolation(interpolation).name)   
    
-    #flatten
-    return reducedImageBrightness.flatten()
+    #normalize and flatten
+    return numpy.array(reducedImageBrightness/255.0).flatten()
  
 def filterClassFromImages(images,classes,className):
      return[images[i] for i in range(len(images)) if classes[i] == className]
@@ -110,20 +121,24 @@ print("Calculating features")
 features=[]
 for i in range(amount):
     print (str(i)+'/'+str(amount))
-    feature=calcNewFeature(thumbs[i])    
+    HOG=calcHOG(thumbs[i])    
+    bright=calculateDarktoBrightRatio(thumbs[i])
+    feature=numpy.concatenate((HOG,bright))
     features.append(feature)
   
 features=numpy.array(features)
 
-#reduce feature dimesnionality
-
-# Principal Components
-#pca = PCA(n_components=5)
-#features=pca.fit_transform(features)
-
-# Linear Discriminant Analysis
-#lda = LDA(n_components=5)
-#features=lda.fit_transform(features)
+#reduce feature dimensionality
+nr_of_features=25
+reduction_type=1
+if(reduction_type==0):
+    # Principal Components
+    pca = PCA(n_components=nr_of_features)
+    features=pca.fit_transform(features)
+elif(reduction_type==1):
+    # Linear Discriminant Analysis
+    lda = LDA(n_components=nr_of_features)
+    features=lda.fit_transform(features,classes)
 
 
 print("Producing KFold indexes")
