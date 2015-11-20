@@ -222,13 +222,16 @@ def frequencyFeatures(image, frequencyclasses = 25, subsect_v = 4, subsect_h=4, 
                 index += 1
     return features
     
+#source: http://alienryderflex.com/hsp.html
 def calcPixelBrightness(r,g,b,rWeight=0.299,gWeight=0.587,bWeight=0.114):
     return rWeight*math.pow(r,2)+gWeight*math.pow(g,2) + bWeight*math.pow(b,2)
+    
 class Interpolation(Enum):
     nearest = 0
     bilinear = 1
     bicubic = 2
     cubic = 3
+    
 def calculateDarktoBrightRatio(image, nrOfBlocks=6, interpolation=2, trimBorderFraction=0.1):
     height = len(image)
     width = len(image[0]) 
