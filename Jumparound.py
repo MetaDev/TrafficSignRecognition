@@ -36,17 +36,8 @@ from pybrain.structure import FeedForwardNetwork
 def calcPixelBrightness(r,g,b,rWeight=0.299,gWeight=0.587,bWeight=0.114):
     return rWeight*math.pow(r,2)+gWeight*math.pow(g,2) + bWeight*math.pow(b,2)
    
-#def deskew(img):
-#    SZ=20
-#    affine_flags = cv2.WARP_INVERSE_MAP|cv2.INTER_LINEAR
-#    m = cv2.moments(img)
-#    if abs(m['mu02']) < 1e-2:
-#        return img.copy()
-#    skew = m['mu11']/m['mu02']
-#    M = numpy.float32([[1, skew, -0.5*SZ*skew], [0, 1, 0]])
-#    img = cv2.warpAffine(img,M,(SZ, SZ),flags=affine_flags)
-#    return img
-
+#TODO: http://pybrain.org/docs/tutorial/intro.html
+   
 def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2):
     #image should be resized to square
    imageGray = color.rgb2gray(image)
