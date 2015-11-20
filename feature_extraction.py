@@ -14,6 +14,10 @@ import scipy
 from scipy import stats
 from enum import Enum
 from scipy import signal
+from skimage import exposure, color
+from skimage.feature import hog
+
+
 
 def split_image_features(feature, splits, image):
     features = []
@@ -218,17 +222,14 @@ def frequencyFeatures(image, frequencyclasses = 25, subsect_v = 4, subsect_h=4, 
                 index += 1
     return features
     
-#harald
-def calcPixelBrightness(r,g,b):
-    return 0.299*math.pow(r,2)+0.587*math.pow(g,2) + 0.114*math.pow(b,2)
-    
+def calcPixelBrightness(r,g,b,rWeight=0.299,gWeight=0.587,bWeight=0.114):
+    return rWeight*math.pow(r,2)+gWeight*math.pow(g,2) + bWeight*math.pow(b,2)
 class Interpolation(Enum):
     nearest = 0
     bilinear = 1
     bicubic = 2
     cubic = 3
-
-def calculateDarktoBrightRatio(image, brightThreshhold = 0.8, darkThreshhold=0.1, nrOfBlocks=10, interpolation=1, trimBorderFraction=0.2):
+def calculateDarktoBrightRatio(image, nrOfBlocks=6, interpolation=2, trimBorderFraction=0.1):
     height = len(image)
     width = len(image[0]) 
     #trim borders of the image 
@@ -236,28 +237,27 @@ def calculateDarktoBrightRatio(image, brightThreshhold = 0.8, darkThreshhold=0.1
 
     height = len(image)
     width = len(image[0]) 
-    #TODO calculate brightness distribution
     
-    #first calculate brightness for each pixel than resize array
     imageBrightness = numpy.zeros((height,width))
-    # a possible improvement would be to check if we are calculating the density inside the sign or not
-    # we want to ignore the environments influence on the density
-    # TODO accelerate with numpy
+    #first calculate brightness for each pixel than resize array
     for i in range(height):
         for j in range(width):
+           
             r = image[i, j, 0]
             g = image[i, j, 1]
             b = image[i, j, 2]
             #convert rgb to brightness
             imageBrightness[height-i-1][j]= calcPixelBrightness(r,g,b)
            
-    #TODO, filter, only count very dark and bright pixels (threshhold) 
-    #set everything to bright (1), dont consider pixels in the corners, ther'll rarely be a figure
+    #normalise feature using its histogram
+    imageBrightness=exposure.equalize_hist(imageBrightness)
+
+    #reduce resolution     
     #use scyppy image resize to create blocks   
     reducedImageBrightness=scipy.misc.imresize(imageBrightness,(nrOfBlocks,nrOfBlocks),Interpolation(interpolation).name)   
-    #reducedImageBrightness=scipy.ndimage.interpolation.zoom(imageBrightness,(nrOfBlocks/width,nrOfBlocks/height),order=interpolation)  
-    #flatten feature
-    return reducedImageBrightness.flatten()    
+   
+    #normalize and flatten
+    return numpy.array(reducedImageBrightness/255.0).flatten()
     
 #Combined features
 def angleColorFeatures(image, angleClassAmount = 3, angleMagnitudeThreshold = 100, colorScale = 1.0):
@@ -293,3 +293,16 @@ def angleClasses(image, classAmount = 4, threshold = 100):
     
 def rgb2gray(rgb):
     return numpy.dot(rgb[...,:3],[0.299, 0.587, 0.144])
+    
+def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2):
+    #image should be resized to square
+   imageGray = color.rgb2gray(image)
+   #normalize
+   imageGray=exposure.equalize_hist(imageGray)
+   
+   height = len(image)
+   width = len(image[0]) 
+   ppc=(height/nr_of_cells_per_image,width/nr_of_cells_per_image)
+   cpb=(nr_of_cells_per_block, nr_of_cells_per_block)
+   fd = hog(imageGray, orientations=orient, pixels_per_cell=ppc,cells_per_block=cpb)
+   return numpy.array(fd).flatten()
