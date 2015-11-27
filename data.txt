@@ -1,0 +1,49 @@
+linear SVM
+
+Evaluating brightness features
+logloss scores
+        mean: 1.02352583548 std: 0.0846064058534
+---
+Evaluating color features
+logloss scores
+        mean: 1.1711444116 std: 0.0935412703229
+---
+Evaluating combined features
+logloss scores
+        mean: 0.849126792185 std: 0.0799365665343
+---
+Evaluating HOG features
+logloss scores
+        mean: 0.901353886182 std: 0.0814120297576
+---
+Evaluating combined bch features
+logloss scores
+        mean: 0.850693069858 std: 0.0795397595356
+
+old colors
+1	mean: 1.1711444116 std: 0.0935412703229
+2	mean: 1.16431530214 std: 0.0944677655406
+3	mean: 1.15937559416 std: 0.0956427186122
+
+new colors
+8	
+7	mean: 1.09443440577 std: 0.101307486509
+6	mean: 1.14345924678 std: 0.104370753173
+5	mean: 1.16125353326 std: 0.114975723314
+
+1	mean: 1.02352583548 std: 0.0846064058534
+2	mean: 1.13347465622 std: 0.0863280468039
+3	mean: 1.32814082627 std: 0.0895564141375
+
+8,6,2
+mean: 0.868755384039 std: 0.0884191419977
+8,5,2	
+mean: 0.862672037791 std: 0.0908447728059
+8,4,2
+mean: 0.913153616888 std: 0.0920509504421
+4,5,2
+mean: 0.893198982242 std: 0.0811074385168
+4,5,3
+mean: 0.93653971731 std: 0.0909007077953
+4,5,1
+mean: 0.966883982776 std: 0.0799160547282
