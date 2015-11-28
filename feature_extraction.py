@@ -47,7 +47,18 @@ def color_features(image, mean = True, std = False, skew = False, kurtosis = Fal
 
 def normalizedColorFeatures(image, mean = True, std = True, skew = True, kurtosis = True):
     return color_features(op.normalizeImage(image), mean, std, skew, kurtosis)
-                        
+      
+def colorDistances(image, r_steps = 2, g_steps = 2, b_steps = 2, std = False):
+    features = []
+    for r in range(r_steps):
+        for g in range(g_steps):
+            for b in range(b_steps):
+                color = numpy.array([(r + 1) / r_steps,(g + 1) / g_steps,(b + 1) / b_steps]) * 255
+                distances = numpy.linalg.norm(image - color, axis = 2)
+                features.append(distances.mean())
+                if std: features.append(numpy.std(distances))
+    return numpy.array(features)
+                  
 def normalizedColorDistances(image, r_steps = 2, g_steps = 2, b_steps = 2):
     normalized = op.normalizeImage(image)
     features = []

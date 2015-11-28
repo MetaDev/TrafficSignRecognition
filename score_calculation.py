@@ -6,6 +6,7 @@ Created on Thu Oct 22 13:09:49 2015
 """
 import numpy
 from sklearn import cross_validation
+import sys
 
 limit = 10 ** -15
 
@@ -25,13 +26,18 @@ def logloss(xtrain, ytrain, xtest, ytest, model):
             total += numpy.log(limit)
     return - total / len(ytest)
    
-def loglossKFold(x, y, model, n_folds = 8, given_kfold = False):
+def loglossKFold(x, y, model, n_folds = 8, given_kfold = False, verbose = False):
     if given_kfold:
         kfold = n_folds
     else:
         kfold = cross_validation.KFold(len(x), n_folds = n_folds, shuffle = True)
     scores = []
+    index = 0
     for train_index, test_index in kfold:
+        if verbose:        
+            index += 1
+            sys.stdout.write("\r%d" % index)
+            sys.stdout.flush()
         trainFeatures = [x[i] for i in train_index]
         trainClasses  = [y[i] for i in train_index]
         testFeatures  = [x[i] for i in test_index]
