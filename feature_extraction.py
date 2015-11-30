@@ -14,10 +14,12 @@ import scipy
 from scipy import stats
 from enum import Enum
 from scipy import signal
+from scipy import misc
 from skimage import exposure, color
 from skimage.feature import hog
 
-
+def pixel_features(image, size):
+    return misc.imresize(image, (size, size)).flatten()
 
 def split_image_features(feature, splits, image):
     features = []

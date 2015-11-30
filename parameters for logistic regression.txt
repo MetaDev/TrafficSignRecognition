@@ -22,5 +22,28 @@ logistic:
 naive_bayes.MultinomialNB
 	mean: 2.3180492761 std: 0.161923710207 (not good)
 
-final stuff
+final combined stuff
 mean: 0.378404359093 std: 0.0693848200064
+
+for HOG
+SVC RBF
+	mean: 0.9378464142 std: 0.0561105232157
+
+SVC Linear
+	C 1
+	mean: 0.865250282958 std: 0.0729854766386
+	C 100
+	mean: 0.865464167697 std: 0.0732689114882
+
+SVC Poly 3
+	mean: 1.1424803248 std: 0.102643150837
+
+color
+	RBF gamma 0.1
+	mean: 3.11427460548 std: 0.0669789334457
+	RBF gamma 0.001
+	mean: 1.27934847922 std: 0.0787055300486
+	RBF gamma 0.0001
+	mean: 1.61496032838 std: 0.0959864300749
+
+	
