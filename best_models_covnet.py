@@ -87,7 +87,7 @@ model = Pipeline([
     #("lda projection", lda.LDA(n_components = 80)),
     #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 100)),
     #("sparse random projection", random_projection.SparseRandomProjection(n_components = 500)),
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='l-bfgs', alpha=1e-5, hidden_layer_sizes=(15, 7), random_state=1))
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='l-bfgs', alpha=1e-5, hidden_layer_sizes=(96,96,96,96,96,128,128,128,64,64,10), random_state=1))
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
 
