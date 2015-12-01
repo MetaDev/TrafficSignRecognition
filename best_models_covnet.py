@@ -83,10 +83,10 @@ n_folds = 5
 from sklearn import random_projection
 model = Pipeline([
     ("standard scaler", StandardScaler()),   
-    #("principal component analysis", PCA(192)), #<- appears to reduce efficiency
-    #("lda projection", lda.LDA(n_components = 80)),
+    ("principal component analysis", PCA(192)), #<- appears to reduce efficiency
+    ("lda projection", lda.LDA(n_components = 80)),
     #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 100)),
-    ("sparse random projection", random_projection.SparseRandomProjection(n_components = 350)),
+    #("sparse random projection", random_projection.SparseRandomProjection(n_components = 350)),
     ("Multi-layer Perceptron", MLPClassifier(algorithm='adam', hidden_layer_sizes=(5,3,3,3,3,3,64,64,10), random_state=1,learning_rate='adaptive'))
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
