@@ -311,7 +311,7 @@ def angleClasses(image, classAmount = 4, threshold = 100):
 def rgb2gray(rgb):
     return numpy.dot(rgb[...,:3],[0.299, 0.587, 0.144])
     
-def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2):
+def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2,normalise=True):
     #image should be resized to square
    imageGray = color.rgb2gray(image)
    #normalize
@@ -323,3 +323,11 @@ def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2):
    cpb=(nr_of_cells_per_block, nr_of_cells_per_block)
    fd = hog(imageGray, orientations=orient, pixels_per_cell=ppc,cells_per_block=cpb)
    return numpy.array(fd).flatten()
+
+def calcHOGWrapper(image_single_channel,orient=8,pixel_per_cell=5,nr_of_cells_per_block=2,normalise=True):
+    #normalize
+    image_single_channel=exposure.equalize_hist(image_single_channel)
+    ppc=(pixel_per_cell,pixel_per_cell)
+    cpb=(nr_of_cells_per_block, nr_of_cells_per_block)
+    fd = hog(image_single_channel, orientations=orient, pixels_per_cell=ppc,cells_per_block=cpb,normalise=normalise)
+    return numpy.array(fd).flatten()
