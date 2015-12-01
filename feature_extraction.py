@@ -17,10 +17,11 @@ from scipy import signal
 from scipy import misc
 from skimage import exposure, color
 from skimage.feature import hog
+from sklearn.feature_extraction import image as im
 
 def pixel_features(image, size):
-    return misc.imresize(image, (size, size)).flatten()
-
+    return misc.imresize(image, (size, size), interp='bicubic').flatten()
+    
 def split_image_features(feature, splits, image):
     features = []
     width = len(image)

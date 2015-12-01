@@ -6,6 +6,7 @@ Created on Thu Oct 22 13:09:49 2015
 """
 import numpy
 from sklearn import cross_validation
+from sklearn import metrics
 import sys
 
 limit = 10 ** -15
@@ -17,11 +18,14 @@ def logloss(xtrain, ytrain, xtest, ytest, model):
     total = 0
     for i in range(len(ytest)):
         found = False
+        class_probabilities = probabilities[i, :]
+        class_probabilities = class_probabilities / numpy.linalg.norm(class_probabilities)
         for j in range(len(classes)):
             if classes[j] == ytest[i]:
                 found = True
-                if(probabilities[i, j] < limit): probabilities[i, j] = limit
-                total += numpy.log(probabilities[i, j])
+                if(class_probabilities[j] < limit): class_probabilities[j] = limit
+                if(class_probabilities[j] > 1-limit): class_probabilities[j] = 1-limit
+                total += numpy.log(class_probabilities[j])
         if not found:
             total += numpy.log(limit)
     return - total / len(ytest)

@@ -21,6 +21,7 @@ def validate_feature(features, labels, classes, model, n_folds = 5, print_folds 
         scores = score_calculation.loglossKFold(features, classes, model, kfold, given_kfold = True, verbose = verbose)
         print("logloss scores")
         if print_folds: print("\tfolds",scores)
+                
         print("\tmean:", numpy.mean(scores), "std:", numpy.std(scores))
 
 def validate_feature_linear(features, labels, classes, n_folds = 5, print_folds = True, print_absolute = True, print_logloss = True):

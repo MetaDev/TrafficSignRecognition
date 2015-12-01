@@ -16,7 +16,7 @@ from sklearn import lda, svm
 from skimage import feature, color, exposure
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.decomposition import PCA
 
 
@@ -46,17 +46,19 @@ print("rgbcie...")
 cie = util.loading_map(color.rgb2rgbcie, resized)
 print("grayscaling...")
 grayscaled = util.loading_map(color.rgb2gray, resized)
+print("normalising...")
+normalized = util.loading_map(exposure.equalize_hist, grayscaled)
 #print("edges...")
 #edges = util.loading_map(feature.canny, grayscaled)
 
 print("brightness features")
 brightness = util.loading_map(extraction.calculateDarktoBrightRatio, resized)
+print('\a')
 print("hsv features")
 hsv_features = util.loading_map(lambda x: extraction.split_image_features(extraction.calculateColorFeatures, 8, x), hsv)
 print("luv features")
 luv_features = util.loading_map(lambda x: extraction.split_image_features(
     lambda y : extraction.color_features(y, mean = True, std = True), 7, x), luv)
-print('\a')
 print("hed features")
 hed_features = util.loading_map(lambda x: extraction.split_image_features(
     lambda y : extraction.color_features(y, mean = True, std = True), 8, x), hed)
@@ -64,9 +66,11 @@ print("rgbcie features")
 cie_features = util.loading_map(lambda x: extraction.split_image_features(extraction.calculateColorFeatures, 8, x), cie)
 print("hog features")
 hog = util.loading_map(lambda x: calcHOG(x,orient=6,nr_of_cells_per_image=6,nr_of_cells_per_block=2, normalise = True), grayscaled)
+print("corner features")
+corners = util.loading_map(lambda x: extraction.pixel_features(feature.corner_shi_tomasi(x, sigma=6), 8), grayscaled)
+print('\a')
 #print("daisy features")
 #daisy = util.loading_map(lambda x: feature.daisy(x, step = 32, radius = 30, rings = 2, histograms = 7, orientations = 7).flatten(), grayscaled)
-#print('\a')
 
 hybrid_hsv_luv     = numpy.concatenate((hsv_features, luv_features), 1)
 hybrid_hog_luv     = numpy.concatenate((hog, luv_features), 1)
@@ -76,22 +80,27 @@ hybrid_bright_hog_hsv_luv = numpy.concatenate((brightness,hog, hsv_features, luv
 hybrid_bright_hed_hog_luv = numpy.concatenate((brightness, hed_features, hog, luv_features), 1)
 hybrid_bright_hog_luv = numpy.concatenate((brightness, hog, luv_features), 1)
 
-n_folds = 5
+hybrid_bright_hog_luv_corners = numpy.concatenate((brightness, hog, luv_features, corners), 1)
+
+n_folds = 10
 
 #model = svm.SVC(kernel='linear', probability = True)
 from sklearn import random_projection
+from sklearn.ensemble import RandomForestClassifier
 model = Pipeline([
     ("standard scaler", StandardScaler()),   
-    ("principal component analysis", PCA(500)), #<- appears to reduce efficiency
+    #("Robust Scaler", RobustScaler()),
+    #("principal component analysis", PCA(500)), #<- appears to reduce efficiency
     #("lda projection", lda.LDA(n_components = 80)),
     #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 100)),
     #("sparse random projection", random_projection.SparseRandomProjection(n_components = 500)),
     ("logistic regression", LogisticRegression(solver = 'lbfgs', multi_class = 'multinomial'))
+    #("Random forest classifier", RandomForestClassifier(n_estimators = 200)),
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
 
-#print("Evaluating brightness features")
-#validation.validate_feature(brightness, labels, classes, model, n_folds, False, False, True)
+print("Evaluating brightness features")
+validation.validate_feature(brightness, labels, classes, model, n_folds, False, False, True)
 print("Evaluating hsv features")
 validation.validate_feature(hsv_features, labels, classes, model, n_folds, False, False, True, True)
 print("Evaluating luv features")
@@ -103,6 +112,8 @@ print("Evaluating cie features")
 validation.validate_feature(cie_features, labels, classes, model, n_folds, False, False, True, True)
 print("Evaluating HOG features")
 validation.validate_feature(hog, labels, classes, model, n_folds, False, False, True, True)
+print("Evaluating corner features")
+validation.validate_feature(corners, labels, classes, model, n_folds, False, False, True, True)
 #print("Evaluating daisy features")
 #validation.validate_feature(daisy, labels, classes, model, n_folds, False, False, True, True)
 print("Evaluating hsv+luv")
@@ -121,6 +132,10 @@ print("Evaluating brightness+hed+hog+luv")
 validation.validate_feature(hybrid_bright_hed_hog_luv, labels, classes, model, n_folds, False, False, True, True)
 print("Evaluating brightness+hog+luv")
 validation.validate_feature(hybrid_bright_hog_luv, labels, classes, model, n_folds, False, False, True, True)
+
+
+print("Evaluating brightness+hog+luv+corners")
+validation.validate_feature(hybrid_bright_hog_luv_corners, labels, classes, model, n_folds, False, False, True, True)
 print('\a')
 
 #generate CSV
