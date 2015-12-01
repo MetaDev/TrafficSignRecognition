@@ -82,7 +82,7 @@ n_folds = 5
 #model = svm.SVC(kernel='linear', probability = True)
 from sklearn import random_projection
 model = Pipeline([
-    ("standard scaler", StandardScaler()),   
+    #("standard scaler", StandardScaler()),   
     ("principal component analysis", PCA(192)), #<- appears to reduce efficiency
     ("lda projection", lda.LDA(n_components = 80)),
     #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 100)),
