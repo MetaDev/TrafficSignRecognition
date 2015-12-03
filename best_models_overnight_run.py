@@ -50,6 +50,9 @@ amount = len(images)
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
     
+print("hsv...")
+hsv = util.loading_map(color.rgb2hsv, resized)
+hsv = flatten(hsv,3)
 
 from sklearn import random_projection
 n_folds = 5
@@ -61,9 +64,31 @@ model = Pipeline([
     ])
     
 
-validation.validate_feature(resized, labels, classes, model, n_folds, False, False, True, True)
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
 
+print("150,150")
+model = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150,150), random_state=1,learning_rate='constant',max_iter=300))
+    ])
+    
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)    
+    
+print("150,120")
+model = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150,120), random_state=1,learning_rate='constant',max_iter=300))
+    ])
+    
 
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
+
+print("150,100")
+model = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150,100), random_state=1,learning_rate='constant',max_iter=300))
+    ])
+    
+
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
+    
 
 
 print('\a')
