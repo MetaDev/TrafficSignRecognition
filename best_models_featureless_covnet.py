@@ -57,11 +57,11 @@ hsv = flatten(hsv,3)
 from sklearn import random_projection
 print("model")
 model = Pipeline([
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(200), random_state=1,learning_rate='constant',max_iter=300))
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(300), random_state=1,learning_rate='constant',max_iter=300))
     ])
     
 model2 = Pipeline([
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(250), random_state=1,learning_rate='constant',max_iter=300))
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(500), random_state=1,learning_rate='constant',max_iter=300))
     ])
     
 n_folds = 5
