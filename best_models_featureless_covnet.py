@@ -33,6 +33,7 @@ def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2, norm
 #preloading
 print("loading data...")
 images, labels, classes = loader.loadTrainingImagesPoleNumbersAndClasses()
+images = numpy.squeeze(numpy.asarray(images))
 amount = len(images)
 
 n_folds = 5
@@ -46,7 +47,7 @@ model = Pipeline([
     #("lda projection", lda.LDA(n_components = 80)),
     #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 150)),
     #("sparse random projection", random_projection.SparseRandomProjection(n_components = 350)),
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='adam', hidden_layer_sizes=(5,3,3,3,3,3,64,64,10), random_state=1,learning_rate='invscaling'))
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='adam', hidden_layer_sizes=(5,3,3,3,3,3,64,64,10), random_state=1,learning_rate='adaptive'))
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
     
