@@ -56,12 +56,19 @@ hsv = flatten(hsv,3)
 
 from sklearn import random_projection
 print("model")
-model2 = Pipeline([
+model = Pipeline([
     ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(200), random_state=1,learning_rate='constant',max_iter=300))
+    ])
+    
+model2 = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(250), random_state=1,learning_rate='constant',max_iter=300))
     ])
     
 n_folds = 5
 
+print("model 1")
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
+print("model 2")
 validation.validate_feature(hsv, labels, classes, model2, n_folds, False, False, True, True)
 
 print('\a')
