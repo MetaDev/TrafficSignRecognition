@@ -22,10 +22,10 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.neural_network import MLPClassifier
 
 
-def flatten(resized):
+def flatten(resized, pixelsize):
     size1_F = len(resized[0])
     size2_F = len(resized[0][0])
-    size3_F = len(resized[0][0][0])
+    size3_F = pixelsize
     #♥print("size:",size1_F,",",size2_F)
     array = numpy.array(resized[0])
     reshaped = numpy.reshape(array,(size1_F*size2_F*size3_F))
@@ -33,7 +33,7 @@ def flatten(resized):
     for i in range(1,amount):
         size1 = len(resized[i])
         size2 = len(resized[i][0])
-        size3 = len(resized[i][0][0])
+        size3 = pixelsize
         if(size1*size2*size3 != size1_F*size2_F*size3_F):print("size:",size1,",",size2)
         if(i%100 == 0):print(i,"/",amount)
         array = numpy.array(resized[i])
@@ -54,16 +54,16 @@ print("grayscaling...")
 resized = util.loading_map(color.rgb2gray, resized)
 
 print("reshaping to array...")
-reshaped = flatten(resized)
+reshaped = flatten(resized,1)
     
 #♠print("dimensions reshaped:",len(reshaped),",",len(reshaped[0]),",",len(reshaped[0][0]))
     
 print("hsv...")
 hsv = util.loading_map(color.rgb2hsv, resized)
-hsv = flatten(hsv)
+hsv = flatten(hsv,3)
 print("luv...")
 luv = util.loading_map(color.rgb2luv, resized)  
-luv = flatten(luv)  
+luv = flatten(luv,3)  
 
 #model = svm.SVC(kernel='linear', probability = True)
 from sklearn import random_projection
