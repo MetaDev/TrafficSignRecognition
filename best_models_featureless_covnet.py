@@ -75,15 +75,21 @@ model = Pipeline([
     #("lda projection", lda.LDA(n_components = 80)),
     #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 150)),
     #("sparse random projection", random_projection.SparseRandomProjection(n_components = 350)),
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='adam', hidden_layer_sizes=(100,64,64,64,64,64,64,64,81), random_state=1,learning_rate='constant'))
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(100,64,64,64,64,64,64,64,81), random_state=1,learning_rate='constant'))
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
     
-n_folds = 5
+n_folds = 10
 print("featureless")
 validation.validate_feature(reshaped, labels, classes, model, n_folds, False, False, True, True)
 print("hsv features")
 validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
 print("luv features")
 validation.validate_feature(luv, labels, classes, model, n_folds, False, False, True, True)
+print("hsv+luv")
+combo = numpy.concatenate((hsv,luv),1)
+validation.validate_feature(combo, labels, classes, model, n_folds, False, False, True, True)
+print("all")
+combo = numpy.concatenate((combo,reshaped),1)
+validation.validate_feature(combo, labels, classes, model, n_folds, False, False, True, True)
 print('\a')
