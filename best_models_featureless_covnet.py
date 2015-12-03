@@ -38,12 +38,15 @@ amount = len(images)
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
 
+print("grayscaling...")
+resized = util.loading_map(color.rgb2gray, resized)
+
 print("reshaping to array...")
 size1_F = len(resized[0])
 size2_F = len(resized[0][0])
 #♥print("size:",size1_F,",",size2_F)
 array = numpy.array(resized[0])
-reshaped = numpy.reshape(array,(size1_F*size2_F*3))
+reshaped = numpy.reshape(array,(size1_F*size2_F))
 reshaped = [reshaped]
 for i in range(1,amount):
     size1 = len(resized[i])
@@ -51,7 +54,7 @@ for i in range(1,amount):
     if(size1*size2 != size1_F*size2_F):print("size:",size1,",",size2)
     if(i%100 == 0):print(i,"/",amount)
     array = numpy.array(resized[i])
-    a = numpy.reshape(array,(size1*size2*3))
+    a = numpy.reshape(array,(size1*size2))
     reshaped = numpy.concatenate((reshaped,[a]),0)
     
 #♠print("dimensions reshaped:",len(reshaped),",",len(reshaped[0]),",",len(reshaped[0][0]))
