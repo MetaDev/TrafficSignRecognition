@@ -43,7 +43,7 @@ def flatten(resized, pixelsize):
     
    
 print("loading data...")
-size = 100
+size = 16
 images, labels, classes = loader.loadTrainingImagesPoleNumbersAndClasses()
 amount = len(images)
 
@@ -79,7 +79,7 @@ model = Pipeline([
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
     
-n_folds = 10
+n_folds = 5
 print("featureless")
 validation.validate_feature(reshaped, labels, classes, model, n_folds, False, False, True, True)
 print("hsv features")
