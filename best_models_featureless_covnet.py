@@ -30,13 +30,18 @@ def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2, norm
    fd = feature.hog(image, orientations=orient, pixels_per_cell=ppc,cells_per_block=cpb, normalise = normalise)
    return numpy.array(fd).flatten()
    
-#preloading
 print("loading data...")
+size = 100
 images, labels, classes = loader.loadTrainingImagesPoleNumbersAndClasses()
-images = numpy.squeeze(numpy.asarray(images))
 amount = len(images)
 
-n_folds = 5
+print("resizing...")
+resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
+
+print("reshaping to array...")
+size1 = len(resized[0])
+size2 = len(resized[0][0])
+reshaped = util.loading_map(lambda x : numpy.reshape(x, (1,size1*size2)), resized)
 
 #model = svm.SVC(kernel='linear', probability = True)
 from sklearn import random_projection
@@ -51,6 +56,7 @@ model = Pipeline([
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
     
+n_folds = 5
 print("Evaluating featureless covnet")
-validation.validate_feature(images, labels, classes, model, n_folds, False, False, True, True)
+validation.validate_feature(reshaped, labels, classes, model, n_folds, False, False, True, True)
 print('\a')
