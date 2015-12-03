@@ -39,9 +39,17 @@ print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
 
 print("reshaping to array...")
-size1 = len(resized[0])
-size2 = len(resized[0][0])
-reshaped = util.loading_map(lambda x : numpy.reshape(x, (1,size1*size2)), resized)
+size1_F = len(resized[0])
+size2_F = len(resized[0][0])
+print("size:",size1_F,",",size2_F)
+reshaped = [numpy.reshape(numpy.array(resized[0],(1,size1_F*size2_F)))]
+for i in range(1,amount):
+    size1 = len(resized[i])
+    size2 = len(resized[i][0])
+    if(size1*size2 != size1_F*size2_F):print("size:",size1,",",size2)
+    a = numpy.reshape(numpy.array(resized[i],(1,size1*size2)))
+    reshaped = numpy.concatenate((reshaped,[a]),0)
+    
 
 #model = svm.SVC(kernel='linear', probability = True)
 from sklearn import random_projection
