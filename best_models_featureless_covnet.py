@@ -31,7 +31,7 @@ def calcHOG(image,orient=8,nr_of_cells_per_image=6,nr_of_cells_per_block=2, norm
    return numpy.array(fd).flatten()
    
 print("loading data...")
-size = 32
+size = 100
 images, labels, classes = loader.loadTrainingImagesPoleNumbersAndClasses()
 amount = len(images)
 
