@@ -49,11 +49,10 @@ amount = len(images)
 
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
-
-print("grayscaling...")
-grayscaled = util.loading_map(color.rgb2gray, resized)
-
-reshaped = flatten(grayscaled,1)
+    
+print("hsv...")
+hsv = util.loading_map(color.rgb2hsv, resized)
+hsv = flatten(hsv,3)
 
 from sklearn import random_projection
 n_folds = 5
