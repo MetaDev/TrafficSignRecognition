@@ -61,7 +61,7 @@ n_folds = 5
 
 print("150,150")
 model = Pipeline([
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150,150), random_state=1,learning_rate='constant',max_iter=300))
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(100,100), random_state=1,learning_rate='constant',max_iter=300))
     ])
     
 validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True) 
