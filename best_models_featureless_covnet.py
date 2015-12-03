@@ -43,7 +43,7 @@ def flatten(resized, pixelsize):
     
    
 print("loading data...")
-size = 16
+size = 32
 images, labels, classes = loader.loadTrainingImagesPoleNumbersAndClasses()
 amount = len(images)
 
