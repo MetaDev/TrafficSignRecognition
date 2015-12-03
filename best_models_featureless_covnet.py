@@ -51,10 +51,10 @@ print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
 
 print("grayscaling...")
-resized = util.loading_map(color.rgb2gray, resized)
+grayed = util.loading_map(color.rgb2gray, resized)
 
 print("reshaping to array...")
-reshaped = flatten(resized,1)
+reshaped = flatten(grayed,1)
     
 #♠print("dimensions reshaped:",len(reshaped),",",len(reshaped[0]),",",len(reshaped[0][0]))
     
