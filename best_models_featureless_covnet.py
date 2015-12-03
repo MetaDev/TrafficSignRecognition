@@ -49,47 +49,26 @@ amount = len(images)
 
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
-
-#print("grayscaling...")
-#grayed = util.loading_map(color.rgb2gray, resized)
-#
-#print("reshaping to array...")
-#reshaped = flatten(grayed,1)
-    
-#♠print("dimensions reshaped:",len(reshaped),",",len(reshaped[0]),",",len(reshaped[0][0]))
     
 print("hsv...")
 hsv = util.loading_map(color.rgb2hsv, resized)
 hsv = flatten(hsv,3)
-#print("luv...")
-#luv = util.loading_map(color.rgb2luv, resized)  
-#luv = flatten(luv,3)  
 
-#model = svm.SVC(kernel='linear', probability = True)
 from sklearn import random_projection
 print("model")
 model = Pipeline([
-    #("standard scaler", StandardScaler()),
-    #MinMaxScaler((-1,1)),
-    #("principal component analysis", PCA(192)), #<- appears to reduce efficiency
-    #("lda projection", lda.LDA(n_components = 80)),
-    #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 150)),
-    #("sparse random projection", random_projection.SparseRandomProjection(n_components = 350)),
     ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(50), random_state=1,learning_rate='constant',max_iter=300))
-    #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
+    ])
+    
+model2 = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150), random_state=1,learning_rate='constant',max_iter=300))
     ])
     
 n_folds = 5
-#print("featureless")
-#validation.validate_feature(reshaped, labels, classes, model, n_folds, False, False, True, True)
-print("hsv features")
+
+print("model 1")
 validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
-#print("luv features")
-#validation.validate_feature(luv, labels, classes, model, n_folds, False, False, True, True)
-#print("hsv+luv")
-#combo = numpy.concatenate((hsv,luv),1)
-#validation.validate_feature(combo, labels, classes, model, n_folds, False, False, True, True)
-#print("all")
-#combo = numpy.concatenate((combo,reshaped),1)
-#validation.validate_feature(combo, labels, classes, model, n_folds, False, False, True, True)
+print("model 2")
+validation.validate_feature(hsv, labels, classes, model2, n_folds, False, False, True, True)
+
 print('\a')
