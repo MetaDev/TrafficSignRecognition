@@ -43,7 +43,7 @@ size1_F = len(resized[0])
 size2_F = len(resized[0][0])
 print("size:",size1_F,",",size2_F)
 array = numpy.array(resized[0])
-reshaped = numpy.reshape(array,(1,size1_F*size2_F))
+reshaped = numpy.reshape(array,(1,size1_F*size2_F*3))
 reshaped = [reshaped]
 for i in range(1,amount):
     size1 = len(resized[i])
