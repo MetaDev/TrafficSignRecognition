@@ -50,7 +50,7 @@ for i in range(1,amount):
     size2 = len(resized[i][0])
     if(size1*size2 != size1_F*size2_F):print("size:",size1,",",size2)
     array = numpy.array(resized[i])
-    a = numpy.reshape(array(1,size1*size2*3))
+    a = numpy.reshape(array,(1,size1*size2*3))
     reshaped = numpy.concatenate((reshaped,[a]),0)
     
 
