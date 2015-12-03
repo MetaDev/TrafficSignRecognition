@@ -43,18 +43,18 @@ def flatten(resized, pixelsize):
     
    
 print("loading data...")
-size = 64
+size = 32
 images, labels, classes = loader.loadTrainingImagesPoleNumbersAndClasses()
 amount = len(images)
 
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
 
-print("grayscaling...")
-grayed = util.loading_map(color.rgb2gray, resized)
-
-print("reshaping to array...")
-reshaped = flatten(grayed,1)
+#print("grayscaling...")
+#grayed = util.loading_map(color.rgb2gray, resized)
+#
+#print("reshaping to array...")
+#reshaped = flatten(grayed,1)
     
 #♠print("dimensions reshaped:",len(reshaped),",",len(reshaped[0]),",",len(reshaped[0][0]))
     
@@ -75,7 +75,7 @@ model = Pipeline([
     #("lda projection", lda.LDA(n_components = 80)),
     #("gaussian random projection", random_projection.GaussianRandomProjection(n_components = 150)),
     #("sparse random projection", random_projection.SparseRandomProjection(n_components = 350)),
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(100,64,64,64,64,64,64,64,81), random_state=1,learning_rate='constant'))
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(100,64,64,64,64,64,64,64,81), random_state=1,learning_rate='adaptive'))
     #("svm", svm.SVC(kernel = "sigmoid", C = 1000, gamma = 0.0001, probability = True))
     ])
     
