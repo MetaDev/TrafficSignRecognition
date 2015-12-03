@@ -58,14 +58,6 @@ from sklearn import random_projection
 n_folds = 5
 
 
-print("150")
-model = Pipeline([
-    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150), random_state=1,learning_rate='constant',max_iter=300))
-    ])
-    
-
-validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
-
 print("150,150")
 model = Pipeline([
     ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150,150), random_state=1,learning_rate='constant',max_iter=300))
@@ -84,6 +76,30 @@ validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, 
 print("150,100")
 model = Pipeline([
     ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(150,100), random_state=1,learning_rate='constant',max_iter=300))
+    ])
+    
+
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
+
+
+print("100,150")
+model = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(100,150), random_state=1,learning_rate='constant',max_iter=300))
+    ])
+    
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)    
+    
+print("100,120")
+model = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(100,120), random_state=1,learning_rate='constant',max_iter=300))
+    ])
+    
+
+validation.validate_feature(hsv, labels, classes, model, n_folds, False, False, True, True)
+
+print("300,150")
+model = Pipeline([
+    ("Multi-layer Perceptron", MLPClassifier(algorithm='sgd', hidden_layer_sizes=(300,150), random_state=1,learning_rate='constant',max_iter=300))
     ])
     
 
