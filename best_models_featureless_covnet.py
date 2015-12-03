@@ -49,7 +49,7 @@ amount = len(images)
 
 print("resizing...")
 resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), images)
-    
+reshaped = flatten(resized,1)
 
 from sklearn import random_projection
 n_folds = 5
@@ -61,7 +61,7 @@ model = Pipeline([
     ])
     
 
-validation.validate_feature(resized, labels, classes, model, n_folds, False, False, True, True)
+validation.validate_feature(reshaped, labels, classes, model, n_folds, False, False, True, True)
 
 
 
