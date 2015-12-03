@@ -54,7 +54,7 @@ for i in range(1,amount):
     a = numpy.reshape(array,(size1*size2*3))
     reshaped = numpy.concatenate((reshaped,[a]),0)
     
-print("dimensions reshaped:",len(reshaped),",",len(reshaped[0]),",",len(reshaped[0][0]))
+#♠print("dimensions reshaped:",len(reshaped),",",len(reshaped[0]),",",len(reshaped[0][0]))
     
 
 #model = svm.SVC(kernel='linear', probability = True)
