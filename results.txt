@@ -1,0 +1,64 @@
+----------
+LR
+----------
+Evaluating LUV
+10logloss scores
+        mean: 1.00240807113 std: 0.378326649532
+Evaluating HOG
+10logloss scores
+        mean: 1.94763527055 std: 0.0612297576196
+Evaluating HOG + LUV + B
+10logloss scores
+        mean: 0.948137770669 std: 0.368497149873
+----------
+SSLR
+----------
+Evaluating LUV
+10logloss scores
+        mean: 0.450862910695 std: 0.13350653802
+Evaluating HOG
+10logloss scores
+        mean: 0.314037988204 std: 0.087892985438
+Evaluating HOG + LUV + B
+10logloss scores
+        mean: 0.221652577276 std: 0.0843999408109
+----------
+RSLR
+----------
+Evaluating LUV
+10logloss scores
+        mean: 0.445224896626 std: 0.13184224312
+Evaluating HOG
+10logloss scores
+        mean: 0.367824962572 std: 0.117343559745
+Evaluating HOG + LUV + B
+10logloss scores
+        mean: 0.258646359602 std: 0.0985959456862
+----------
+SSPCALR
+----------
+Evaluating LUV
+10logloss scores
+        mean: 0.451435651263 std: 0.13338566477
+Evaluating HOG
+10logloss scores
+        mean: 0.314658298067 std: 0.0890612199208
+Evaluating HOG + LUV + B
+10logloss scores
+        mean: 0.225843989365 std: 0.0873858096802
+----------
+SSLDALR
+----------
+Evaluating LUV
+10logloss scores
+        mean: 0.602847229972 std: 0.151854144416
+Evaluating HOG
+1C:\Users\Rian\Anaconda3\lib\site-packages\sklearn\discriminant_analysis.py:453: UserWarning: The priors do not sum to 1. Renormalizing
+  UserWarning)
+C:\Users\Rian\Anaconda3\lib\site-packages\sklearn\discriminant_analysis.py:387: UserWarning: Variables are collinear.
+  warnings.warn("Variables are collinear.")
+10logloss scores
+        mean: 0.391451796494 std: 0.10420719659
+Evaluating HOG + LUV + B
+10logloss scores
+        mean: 0.274644821789 std: 0.0766180100354

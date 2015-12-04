@@ -57,8 +57,9 @@ print('\a')
 print("hsv features")
 hsv_features = util.loading_map(lambda x: extraction.split_image_features(extraction.calculateColorFeatures, 8, x), hsv)
 print("luv features")
-luv_features = util.loading_map(lambda x: extraction.split_image_features(
-    lambda y : extraction.color_features(y, mean = True, std = True), 7, x), luv)
+luv_features = util.loading_map(lambda x: extraction.pixel_features(x, 11), luv)
+#luv_features = util.loading_map(lambda x: extraction.split_image_features(
+#    lambda y : extraction.color_features(y, mean = True, std = True), 7, x), luv)
 print("hed features")
 hed_features = util.loading_map(lambda x: extraction.split_image_features(
     lambda y : extraction.color_features(y, mean = True, std = True), 8, x), hed)
@@ -87,6 +88,8 @@ n_folds = 10
 #model = svm.SVC(kernel='linear', probability = True)
 from sklearn import random_projection
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import feature_selection
+from sklearn.decomposition import PCA
 model = Pipeline([
     ("standard scaler", StandardScaler()),   
     #("Robust Scaler", RobustScaler()),
@@ -101,17 +104,18 @@ model = Pipeline([
 
 print("Evaluating brightness features")
 validation.validate_feature(brightness, labels, classes, model, n_folds, False, False, True)
+print('\a')
 print("Evaluating hsv features")
 validation.validate_feature(hsv_features, labels, classes, model, n_folds, False, False, True, True)
 print("Evaluating luv features")
 validation.validate_feature(luv_features, labels, classes, model, n_folds, False, False, True, True)
-print('\a')
 print("Evaluating hed features")
 validation.validate_feature(hed_features, labels, classes, model, n_folds, False, False, True, True)
 print("Evaluating cie features")
 validation.validate_feature(cie_features, labels, classes, model, n_folds, False, False, True, True)
 print("Evaluating HOG features")
-validation.validate_feature(hog, labels, classes, model, n_folds, False, False, True, True)
+#validation.validate_feature(hog, labels, classes, model, n_folds, False, False, True, True)
+hog = util.loading_map(lambda x: feature.hog(x, orientations = 6, pixels_per_cell = (12,12), cells_per_block=(8,8), normalise = True), grayscaled)
 print("Evaluating corner features")
 validation.validate_feature(corners, labels, classes, model, n_folds, False, False, True, True)
 #print("Evaluating daisy features")
@@ -139,8 +143,7 @@ validation.validate_feature(hybrid_bright_hog_luv_corners, labels, classes, mode
 print('\a')
 
 #generate CSV
-"""
-"""
+""""""
 test_data = loader.loadTest()
 test_resized = util.loading_map(lambda x : operations.cropAndResize(x, 0, size), test_data)
 test_grayscaled = util.loading_map(color.rgb2gray, test_resized)
@@ -148,13 +151,12 @@ test_luv = util.loading_map(color.rgb2luv, test_resized)
 print("test brightness features")
 test_brightness = util.loading_map(extraction.calculateDarktoBrightRatio, test_resized)
 print("test luv features")
-test_luv_features = util.loading_map(lambda x: extraction.split_image_features(
-    lambda y : extraction.color_features(y, mean = True, std = True), 7, x), test_luv)
+test_luv_features = util.loading_map(lambda x: extraction.pixel_features(x, 11), test_luv)
 print("test hog features")
-test_hog = util.loading_map(lambda x: calcHOG(x,orient=6,nr_of_cells_per_image=6,nr_of_cells_per_block=2, normalise = True), test_grayscaled)
-
+test_hog = util.loading_map(lambda x: feature.hog(x, orientations = 6, pixels_per_cell = (12,12), cells_per_block=(8,8), normalise = True), test_grayscaled)
+print('\a')
 #test_features = util.loading_map(lambda x: feature.daisy(x, step = 8, radius = 20, rings = 2, histograms = 4, orientations = 4).flatten(), test_grayscaled)
-test_features = numpy.concatenate((test_brightness, test_hog, test_luv_features), 1)
+test_features = numpy.concatenate((test_hog, test_luv_features, test_brightness), 1)
 
-csv_output.generate(hybrid_bright_hog_luv, classes, test_features, model, "ultimate2.csv")#"""
+csv_output.generate(hog_l_b, classes, test_features, model, "ultimate4.csv")#"""
 print('\a')
