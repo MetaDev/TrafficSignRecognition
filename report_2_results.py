@@ -62,12 +62,12 @@ RSLR = Pipeline([
     ])
 SSPCALR = Pipeline([
     ("standard scaler", StandardScaler()),
-    ("pca", PCA(n_components = 350))
+    ("pca", PCA(n_components = 350)),
     ("logistic regression", LogisticRegression(solver = 'lbfgs', multi_class = 'multinomial'))
     ])
 SSLDALR = Pipeline([
     ("standard scaler", StandardScaler()),
-    ("lda", lda.LDA(n_components = 80))
+    ("lda", lda.LDA(n_components = 80)),
     ("logistic regression", LogisticRegression(solver = 'lbfgs', multi_class = 'multinomial'))
     ])
     
